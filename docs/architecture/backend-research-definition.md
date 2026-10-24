@@ -4,6 +4,11 @@
 
 **Cómo leerlo.** Cada duda del agente tiene la misma forma: _qué preguntaba_, _en palabras sencillas_, _decisión_ y _por qué_. Al final hay una lista de lo que Claude Code debe cambiar en los documentos y de lo que tienes que hacer tú.
 
+> **Actualización del 2026-10-24 (orquestador), aprobada por Anderson después de este documento:**
+> - El **despliegue temprano (rama 1b) se pospone** hasta después de las pruebas locales. Pasa a ser la rama 9 `ci/deploy-api` del manual (§12). Todo lo que aquí dice «se valida en la rama 1b» (IP real, reenvío por Cloudflare, cookie) se valida en `ci/deploy-api`. `admin-auth` ya no depende de 1b: se construye y prueba en local con el modelo de origen único.
+> - El **flujo de ramas** es DEV → UAT → PDN (ADR-020): las ramas salen de `development`.
+> - Ante una diferencia entre este documento y el manual o un ADR posterior, mandan el manual y el ADR.
+
 **Estado de las respuestas.** Las tres marcadas con 👤 las decidiste tú. El resto son recomendaciones mías; pasan a ser definitivas cuando le des el visto bueno a este documento. Cualquier cambio posterior se hace con un ADR (una nota corta que explica una decisión).
 
 ---
@@ -106,8 +111,9 @@
 - **Respuesta:** no se contradicen. «Sin estado» significa que ningún dato **importante** (sesiones, contenido) vive en el proceso. Los contadores del límite son descartables: si se pierden al reiniciar, solo se regala una ventana de peticiones. Con una única instancia, además, no hay nada que compartir.
 - **Se adopta la redacción propuesta por el agente** para el manual §7.5:
 
-> «La API no guarda en memoria del proceso ningún estado de negocio ni de sesión: la sesión viaja en una cookie firmada y los datos están en PostgreSQL. Se permite únicamente estado **efímero de protección** (contadores del limitador y, si aplica, el antirrebote de publicación), cuya pérdida no afecta a la corrección; es válido mientras `max-instances = 1` (ADR-008). Si se escala a más de una instancia, ese estado pasa a un almacén compartido o a la base de datos, y se revisa el ADR.»
+> «La API no guarda en memoria del proceso ningún estado de negocio ni de sesión: la sesión viaja en una cookie firmada y los datos están en PostgreSQL. Se permite únicamente estado **efímero de protección** (contadores del limitador), cuya pérdida no afecta a la corrección; es válido mientras `max-instances = 1` (ADR-008). Si se escala a más de una instancia, ese estado pasa a un almacén compartido o a la base de datos, y se revisa el ADR.»
 
+- _(Nota del orquestador: se quitó de la cita «y, si aplica, el antirrebote de publicación», porque el punto siguiente lo guarda en la base de datos y no en memoria.)_
 - **Antirrebote de «Publicar»:** se guarda en la base de datos (tabla `publish_event`, ver sección 4), no en memoria, porque protege un recurso escaso (los 500 builds al mes) y sirve también para mostrar «última publicación» en el panel.
 
 ---
@@ -210,6 +216,8 @@ La regla general que se aplica: **si el diseño lo muestra o el requisito lo pid
 
 ## 5. Backlog definitivo (sección E)
 
+> **Sustituido por el manual §12** (2026-10-24): la rama 1b pasa a ser la 9 `ci/deploy-api`, tras las pruebas locales; `admin-auth` depende solo de la 2; `ci/db-backup` depende de la 2 y de `ci/deploy-api`.
+
 **Decisión:** se aprueban todos los cambios propuestos. Los más importantes:
 - **Despliegue temprano (1b):** una versión mínima de la API ya en Cloud Run justo después de la 1. Es donde se prueban la IP real, el dominio con Cloudflare, la cookie, los arranques en frío y la autenticación con Google. Mejor descubrir un problema aquí que en la rama 8.
 - **La rama 6 se divide** en piezas pequeñas (tecnologías, proyectos, experiencia, habilidades, referencias y perfil), porque tocan recursos distintos.
@@ -295,7 +303,7 @@ El manual cita «ADR-008» para «API sin estado» (correcto) y para «`/health`
 
 ## 8. Lo que tienes que hacer tú
 
-1. **Documentos movidos (G13).** El agente dice que los archivos se movieron a `docs/discovery/` y que `03-information-architecture.md` y la carpeta `profile/` aparecen borrados en tu copia de trabajo. Esos dos son necesarios (inventario de contenido y borrador del contenido). Revisa `git status`. Si los moviste tú a propósito, dime la ruta final y se actualiza el manual; si fue un accidente, restáuralos con `git restore`.
+1. **[Hecho el 2026-10-24: restaurados en `docs/content/` y rutas del manual corregidas.]** **Documentos movidos (G13).** El agente dice que los archivos se movieron a `docs/discovery/` y que `03-information-architecture.md` y la carpeta `profile/` aparecen borrados en tu copia de trabajo. Esos dos son necesarios (inventario de contenido y borrador del contenido). Revisa `git status`. Si los moviste tú a propósito, dime la ruta final y se actualiza el manual; si fue un accidente, restáuralos con `git restore`.
 2. **Preparar una versión del CV sin teléfono** (cuando llegue el momento de la web).
 3. **Dar el visto bueno a este documento.** Con tu «ok», Claude Code puede pasar a la Fase 1.
 

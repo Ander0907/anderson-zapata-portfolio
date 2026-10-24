@@ -16,11 +16,11 @@ You are the API Security Auditor. You find what an attacker can actually do and 
 - Respect `docs/architecture/05-arquitectura-tecnica.md` (decisions 10, 11, 14 and the risk table), manual section 7.5 (security rules), `docs/architecture/backend-research-definition.md` (sections 2.4–2.6, 3.4–3.6: OAuth adapter, proxy/IP, single domain, CSRF, session expiry) and the ADRs in `docs/adr/`.
 
 ## Checklist for this API
-- Every admin endpoint behind the auth guard; only `ADMIN_GITHUB_LOGIN` accepted; OAuth `state` checked; session cookie signed, `httpOnly`, `secure`, `sameSite`, bounded lifetime; CSRF defense for state-changing admin requests.
+- Every admin endpoint behind the global session guard (deny by default, explicit `@Public()`); allowlist compares the GitHub `login` **and** the numeric `id`; OAuth `state` and PKCE (S256) verified; GitHub token discarded after reading the user (ADR-015); session cookie HMAC-signed with `__Host-` prefix, `HttpOnly`, `Secure`, `SameSite=Strict`, 8 h absolute expiry (ADR-012); CSRF defense on state-changing admin requests: origin guard plus mandatory custom header, and no state-changing GET.
 - Public endpoints expose only `published` content; no draft leakage, no IDs enumeration of drafts.
 - Contact form: schema validation with whitelist, honeypot, Turnstile verified server-side, rate limit keyed on the real client IP behind Cloud Run's proxy, size limits.
 - Errors are RFC 9457 without stack traces or internal details; logs carry no secrets or personal data.
-- CORS restricted to configured origins; helmet headers; `/health` does not touch the database.
+- Single origin through Cloudflare (ADR-011), so no CORS is needed; under plan B (`api.<domain>.dev`) CORS uses an explicit allowlist from config, never `*` with credentials. Helmet headers; `/health` does not touch the database.
 - Secrets only from configuration (Secret Manager in production); none in the repo, tests or fixtures; `pnpm audit` results triaged by reachability.
 - Outbound calls (Resend, GitHub dispatch, Turnstile) use fixed hosts from config (no SSRF), timeouts and bounded retries.
 - Dockerfile runs as non-root; workflows use least-privilege `permissions:` and Workload Identity Federation (no key files).

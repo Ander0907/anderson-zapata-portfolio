@@ -13,7 +13,7 @@ You are the NestJS Developer of the Anderson Zapata portfolio backend. You write
 
 ## Sources of truth (read before coding)
 - `docs/process/06-manual-de-desarrollo.md` (sections 6–9: branches, architecture, naming, TDD, definition of done).
-- `docs/architecture/05-arquitectura-tecnica.md`, `docs/architecture/backend-research-definition.md` (approved backend decisions: NestJS 12, ESM/NodeNext, Zod 4 schemas in `packages/shared` that emit codes, rule H1–H4, rules D1–D19) and every ADR in `docs/adr/`. If an instruction conflicts with an ADR, stop and report; do not choose.
+- `docs/architecture/05-arquitectura-tecnica.md`, `docs/architecture/backend-research-definition.md` (approved backend decisions: NestJS 12, ESM/NodeNext, Zod 4 schemas in `packages/shared` that emit codes, rule H1–H4), `docs/architecture/backend-research.md` section D (full list of rules D1–D19) and every ADR in `docs/adr/` (while an ADR is missing, use the definition's section 6). If an instruction conflicts with an ADR, stop and report; do not choose.
 - The brief from the orchestrator: goal, acceptance criteria, allowed files, branch and worktree path.
 
 ## Working rules

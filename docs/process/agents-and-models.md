@@ -37,7 +37,7 @@ Notas de diseño:
 
 - **Ningún agente tiene la herramienta `Agent`**, y además `CLAUDE_CODE_MAX_SUBAGENT_SPAWN_DEPTH=1` impide el anidamiento.
 - Los tres revisores no pueden editar: informan y el orquestador devuelve la tarea al implementador.
-- **No se usa `isolation: worktree` en el frontmatter**: esa opción crea un árbol temporal desde `main` en cada invocación, y el flujo rojo → verde → refactor necesita que los agentes trabajen en secuencia sobre la misma rama. El orquestador crea el árbol `../wt-<rama>` (manual 6) y pasa su ruta en el encargo.
+- **No se usa `isolation: worktree` en el frontmatter**: según la documentación de subagentes (consultada el 2026-10-24), esa opción crea en cada invocación un árbol temporal desde la rama por defecto del repositorio (`main`), no desde la rama de la sesión ni desde `development`, y el flujo rojo → verde → refactor necesita que los agentes trabajen en secuencia sobre la misma rama. El orquestador crea el árbol `../wt-<rama>` (manual 6) y pasa su ruta en el encargo.
 - El refactor lo hace `nestjs-developer` en una invocación separada, porque conoce las convenciones del proyecto. El `code-refactorer` de usuario es genérico.
 
 ## 3. Agentes de usuario (`~/.claude/agents/`): 60 agentes

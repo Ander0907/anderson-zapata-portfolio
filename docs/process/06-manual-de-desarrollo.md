@@ -2,7 +2,7 @@
 
 **Estado:** vigente desde 2026-10-24 · **Aplica a:** todo el desarrollo del repositorio, empezando por el backend.
 
-Este manual es la fuente de verdad de _cómo_ se trabaja. Las reglas que no se negocian están resumidas en `CLAUDE.md` (raíz del repositorio), que Claude Code carga en cada sesión. Si algo de aquí contradice a `docs/architecture/05-arquitectura-tecnica.md`, manda el documento de arquitectura; cambiarlo exige un ADR y la aprobación de Anderson.
+Este manual es la fuente de verdad de _cómo_ se trabaja. Las reglas que no se negocian están resumidas en `CLAUDE.md` (raíz del repositorio), que Claude Code carga en cada sesión. Si algo de aquí contradice a `docs/architecture/05-arquitectura-tecnica.md`, manda el documento de arquitectura; cambiarlo exige un ADR y la aprobación de Anderson. `docs/architecture/backend-research-definition.md` recoge las decisiones del backend de la Fase 0; donde este manual o un ADR lo actualizaron después (por ejemplo, el aplazamiento de la rama 1b), mandan el manual y el ADR. Mientras un ADR citado no exista todavía en `docs/adr/`, su contenido es el de la definición, sección 6.
 
 ## 1. Roles
 
@@ -88,7 +88,7 @@ Las skills son instrucciones que un agente carga y sigue: una skill maliciosa o 
 
 Antes de fijar la estructura, el orquestador delega una investigación con fuentes vigentes (documentación oficial de NestJS, Prisma, Vitest, OWASP, RFC) y propone las decisiones que falten como ADR. Resultado esperado: propuesta de estructura, patrones, convenciones y reglas adicionales, cada una con su motivo y alternativa. **No se adopta nada por moda**: el proyecto es pequeño y lo mantiene una persona.
 
-### 7.2 Punto de partida recomendado (a validar o refutar con la investigación)
+### 7.2 Arquitectura aprobada en la Fase 0
 
 La investigación previa a este manual apunta a:
 
@@ -137,7 +137,7 @@ Reglas de aplicación:
 - Los comentarios explican el _porqué_, no repiten el código. Un docstring solo donde aporte (API pública de un módulo, comportamiento no evidente).
 - Los linters comprueban lo que se pueda (nomenclatura, ficheros en kebab-case); la revisión de código vigila el resto.
 
-### 7.5 Reglas adicionales propuestas (verificar y refinar en la Fase 0)
+### 7.5 Reglas adicionales (aprobadas en la Fase 0)
 
 - **Configuración validada al arrancar** con esquema (fallar rápido si falta algo) y sin leer `process.env` fuera del módulo de configuración.
 - **Errores en un único formato**: filtro global que responde con `application/problem+json` (RFC 9457) y nunca filtra trazas ni detalles internos.
@@ -148,7 +148,7 @@ Reglas de aplicación:
 - **API sin estado** (ADR-008): la API no guarda en memoria del proceso ningún estado de negocio ni de sesión: la sesión viaja en una cookie firmada (`__Host-`, `httpOnly`, `secure`, `sameSite=Strict`) y los datos están en PostgreSQL. Se permite únicamente estado **efímero de protección** (los contadores del limitador), cuya pérdida no afecta a la corrección; es válido mientras `max-instances = 1`. Si se escala a más de una instancia, ese estado pasa a un almacén compartido o a la base de datos, y se revisa el ADR. El antirrebote de «Publicar» se guarda en la base de datos (`publish_event`).
 - **Seguridad**: contrastar la API con el OWASP API Security Top 10 (usar la edición vigente) y con los requisitos aplicables de OWASP ASVS; CORS restringido, `helmet`, límite de peticiones, validación de toda entrada, secretos solo en Secret Manager, dependencias auditadas en CI, sin datos reales en pruebas.
 - **El `/health` no toca la base de datos** (ADR-016).
-- **Reglas D1–D19** de `docs/architecture/backend-research-definition.md` (sección 3.4): versiones exactas, ESM y Node 22, esquemas que emiten códigos, límite del cuerpo de 16 kB, tiempos máximos y reintentos acotados, panel cerrado por defecto con guard de origen, contrato `openapi.json` versionado, listados paginados (máximo 50), sin registrar cuerpos de petición, Swagger solo fuera de producción.
+- **Reglas D1–D19**, aprobadas en `docs/architecture/backend-research-definition.md` (sección 3.4); la lista completa, con motivo y alternativa de cada una (incluidas D14 importaciones restringidas por capa, D15 aislamiento de la base de pruebas y D17 TypeScript estricto ampliado), está en `docs/architecture/backend-research.md`, sección D. Resumen: versiones exactas, ESM y Node 22, esquemas que emiten códigos, límite del cuerpo de 16 kB, tiempos máximos y reintentos acotados, panel cerrado por defecto con guard de origen, contrato `openapi.json` versionado, listados paginados (máximo 50), sin registrar cuerpos de petición, Swagger solo fuera de producción.
 - **Persistir antes de notificar**: el mensaje de contacto se guarda siempre; el fallo del correo no lo pierde ni rompe la respuesta.
 - **Idempotencia y reintentos acotados** en la integración con GitHub y con el correo.
 - **Contenedor**: imagen multi-etapa, usuario sin privilegios, apagado ordenado, escucha en `PORT` y `0.0.0.0`.

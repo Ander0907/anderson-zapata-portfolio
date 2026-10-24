@@ -39,7 +39,7 @@ Entrega continua   Pull request ──▶ CI (lint, tipos, pruebas, seguridad, L
 | 12 | Copias de seguridad | Volcado semanal a un bucket privado de Cloud Storage | Manual, ninguna | Neon gratis solo conserva 6 horas de historial |
 | 13 | ORM | Prisma 7 | Drizzle, TypeORM | Esquema legible, cliente tipado, migraciones SQL versionadas |
 | 14 | Anti-abuso del formulario | Campo trampa, límite de peticiones (`@nestjs/throttler`) y Cloudflare Turnstile | Solo las dos primeras | Defensa por capas |
-| 15 | Entornos y Git | Local y producción; ramas cortas con pull request y `main` protegida | Añadir staging | Mantenible por una persona; reversión rápida con las revisiones de Cloud Run |
+| 15 | Entornos y Git | Entornos: local y producción (sin staging). Git: ramas cortas desde `development` con pull request; promociones `development` (DEV) → `release` (UAT) → `main` (PDN), las tres protegidas. `release` es una rama de aceptación, no un entorno. Actualizado por decisión de Anderson el 2026-10-24 (ADR-020) | Añadir staging; ramas directas a `main` | Mantenible por una persona; reversión rápida con las revisiones de Cloud Run; solo `main` se despliega |
 
 ## 3. Cambios al modelo de datos
 
@@ -101,7 +101,7 @@ La API y el bucket irán en `us-central1`, la región a la que se refieren las c
 - **Antes de desplegar:** pruebas E2E del flujo crítico con Playwright.
 - **Al fusionar en `main`:** imagen Docker de la API a Cloud Run; sitio a Cloudflare.
 - **Programado:** volcado semanal de la base de datos.
-- **Reglas del repositorio:** `main` protegida, pull request obligatorio, commits convencionales.
+- **Reglas del repositorio:** `development`, `release` y `main` protegidas; pull request obligatorio en las tres; commits convencionales; solo `main` dispara el despliegue.
 
 ## 8. ADR por redactar
 
