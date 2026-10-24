@@ -107,5 +107,5 @@ Contenido propuesto:
 | Proyectos | Fichas con contexto redactado (problema, rol, solución, decisiones, stack, resultado); entre 4 y 6 en total, 3 o 4 destacados |
 | Enlace al repositorio | Opcional, solo si el proyecto es público (ajuste a RF-03) |
 | Habilidades | Agrupadas por categoría, sin porcentajes ni niveles |
-| Contenido | Primer borrador en `contenido-borrador.md`, a refinar en la fase 4 |
+| Contenido | Primer borrador en `docs/content/draft-content.md`, a refinar en la fase 4 |
 | Fuente del contenido | Hoja de vida del administrador |
