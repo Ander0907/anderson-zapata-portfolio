@@ -114,7 +114,7 @@ La API y el bucket irán en `us-central1`, la región a la que se refieren las c
 7. Entrar con GitHub en lugar de contraseñas propias.
 8. Límite de peticiones en memoria con una sola instancia (revisable si se escala).
 
-La numeración de los ADR es independiente de la tabla de decisiones de la sección 2. La Fase 0 del backend añadió once más (009–019): validación con Zod, ESM y NodeNext, dominio único y cookie, sesión firmada, formato de errores, logs con pino, adaptador OAuth propio, `/health` sin base de datos, regla H1–H4, pruebas con base de datos, y Prisma 7 con dos URL de Neon. La lista completa está en `backend-research-definition.md`, sección 6. Los ADR viven en `docs/adr/`.
+La numeración de los ADR es independiente de la tabla de decisiones de la sección 2. La Fase 0 del backend añadió doce más (009–020): validación con Zod, ESM y NodeNext, dominio único y cookie, sesión firmada, formato de errores, logs con pino, adaptador OAuth propio, `/health` sin base de datos, regla H1–H4, pruebas con base de datos, Prisma 7 con dos URL de Neon, y flujo de ramas DEV → UAT → PDN. La lista completa está en `backend-research-definition.md`, sección 6. Los ADR viven en `docs/adr/`.
 
 ## 9. Pendientes
 

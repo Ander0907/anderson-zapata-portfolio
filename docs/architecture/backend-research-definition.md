@@ -284,6 +284,7 @@ La numeración de los ADR **es independiente** de la tabla de decisiones del doc
 | 017 | Regla H1–H4 (hexagonal ligera o CRUD plano) |
 | 018 | Estrategia de pruebas con base de datos |
 | 019 | Prisma 7 fijo y dos URL de Neon |
+| 020 | Flujo de ramas DEV → UAT → PDN (añadido el 2026-10-24 por decisión de Anderson) |
 
 El manual cita «ADR-008» para «API sin estado» (correcto) y para «`/health` sin base de datos» (debe ser **ADR-016**).
 
@@ -296,7 +297,7 @@ El manual cita «ADR-008» para «API sin estado» (correcto) y para «`/health`
 3. **Manual §12 (backlog):** reemplazar por la tabla de la sección 5.
 4. **Manual §2 (rutas de los documentos):** corregir según el punto de abajo (G13).
 5. **Documento de arquitectura (`05`):** actualizar el modelo de datos a 15 tablas y la numeración de ADR; anotar el dominio único de la API; anotar la decisión del CV y la foto como archivos estáticos.
-6. **ADR:** redactar los 19, cada uno corto, en español, con contexto, decisión, alternativas y cuándo revisarla.
+6. **ADR:** redactar los 20 (el 020 se añadió después), cada uno corto, en español, con contexto, decisión, alternativas y cuándo revisarla.
 7. **`CLAUDE.md`:** sin cambios, salvo corregir rutas si se mueven documentos.
 
 ---

@@ -90,7 +90,7 @@ Antes de fijar la estructura, el orquestador delega una investigación con fuent
 
 ### 7.2 Arquitectura aprobada en la Fase 0
 
-La investigación previa a este manual apunta a:
+Se aprueba (Fase 0, 2026-10-24):
 
 - **Monolito modular por funcionalidad** (una carpeta por módulo con su controlador, casos de uso, DTO, tests y módulo de Nest), no capas técnicas globales. Es lo que recomiendan las guías actuales para proyectos de este tamaño.
 - **Capas y regla de dependencia donde hay lógica de negocio**: `controlador → caso de uso → puerto (interfaz) ← adaptador (Prisma, correo, GitHub)`. El dominio y los casos de uso no importan nada de Prisma ni de Nest; la única excepción es `@nestjs/common`, permitido en `application/` solo para `@Injectable` e `@Inject`. En módulos que son CRUD puro (por ejemplo, leer tecnologías) **no se crean puertos ni capas «por si acaso»**: el sobrecoste no compensa.
@@ -146,7 +146,7 @@ Reglas de aplicación:
 - **Registro estructurado** (JSON) con identificador de correlación, sin datos personales ni secretos.
 - **Base de datos**: migraciones versionadas y revisadas, cambios compatibles hacia atrás (ampliar, migrar, reducir), transacciones en operaciones de varios pasos e índices justificados. Neon tiene dos direcciones (ADR-019): `DATABASE_URL` (con pool) para la aplicación y `DATABASE_URL_UNPOOLED` (directa) para las migraciones. Las migraciones son un paso aparte del pipeline (`migrate deploy`) antes de desplegar; nunca se ejecuta `migrate dev` ni `db push` contra Neon, y las pruebas nunca tocan Neon. Prisma se fija en 7.10.1 exacto.
 - **API sin estado** (ADR-008): la API no guarda en memoria del proceso ningún estado de negocio ni de sesión: la sesión viaja en una cookie firmada (`__Host-`, `httpOnly`, `secure`, `sameSite=Strict`) y los datos están en PostgreSQL. Se permite únicamente estado **efímero de protección** (los contadores del limitador), cuya pérdida no afecta a la corrección; es válido mientras `max-instances = 1`. Si se escala a más de una instancia, ese estado pasa a un almacén compartido o a la base de datos, y se revisa el ADR. El antirrebote de «Publicar» se guarda en la base de datos (`publish_event`).
-- **Seguridad**: contrastar la API con el OWASP API Security Top 10 (usar la edición vigente) y con los requisitos aplicables de OWASP ASVS; CORS restringido, `helmet`, límite de peticiones, validación de toda entrada, secretos solo en Secret Manager, dependencias auditadas en CI, sin datos reales en pruebas.
+- **Seguridad**: contrastar la API con el OWASP API Security Top 10 (usar la edición vigente) y con los requisitos aplicables de OWASP ASVS; sin CORS con origen único (ADR-011; lista explícita de orígenes solo en el plan B), `helmet`, límite de peticiones, validación de toda entrada, secretos solo en Secret Manager, dependencias auditadas en CI, sin datos reales en pruebas.
 - **El `/health` no toca la base de datos** (ADR-016).
 - **Reglas D1–D19**, aprobadas en `docs/architecture/backend-research-definition.md` (sección 3.4); la lista completa, con motivo y alternativa de cada una (incluidas D14 importaciones restringidas por capa, D15 aislamiento de la base de pruebas y D17 TypeScript estricto ampliado), está en `docs/architecture/backend-research.md`, sección D. Resumen: versiones exactas, ESM y Node 22, esquemas que emiten códigos, límite del cuerpo de 16 kB, tiempos máximos y reintentos acotados, panel cerrado por defecto con guard de origen, contrato `openapi.json` versionado, listados paginados (máximo 50), sin registrar cuerpos de petición, Swagger solo fuera de producción.
 - **Persistir antes de notificar**: el mensaje de contacto se guarda siempre; el fallo del correo no lo pierde ni rompe la respuesta.
@@ -199,7 +199,7 @@ Fuente: `docs/architecture/backend-research-definition.md`, sección 5, con un c
 | Orden | Rama | Depende de | Contenido |
 |---|---|---|---|
 | — | `chore/dev-process` | — | Agentes, skills, configuración de Claude Code, `CLAUDE.md` y este manual actualizado |
-| — | `docs/adr-initial` | `chore/dev-process` | Los 19 ADR (001–019). En paralelo con la 0: solo toca `docs/adr/` |
+| — | `docs/adr-initial` | `chore/dev-process` | Los 20 ADR (001–020). En paralelo con la 0: solo toca `docs/adr/` |
 | 0 | `chore/monorepo-skeleton` | `chore/dev-process` | pnpm workspaces, ESM y NodeNext, Node 22, versiones exactas, `apps/api` (NestJS 12), `packages/shared` (exports por subruta, sin barrel), linters con las restricciones de importación, Vitest 5 con tres proyectos (unit, integration, e2e) y umbrales por carpeta, `unplugin-swc` con una prueba que demuestra la inyección por tipo, commitlint, `docker compose` con PostgreSQL, CI con service container y README |
 | 1 | `feat/api-foundation` | 0 | Configuración validada con Zod, `/health` sin base de datos, `nestjs-pino`, validación con Standard Schema, errores RFC 9457 (400/422), CORS, `helmet`, límite del cuerpo, límite de peticiones con `trust proxy` y `req.ip`, OpenAPI con prueba del contrato, apagado ordenado |
 | 2 | `feat/db-schema` | 1 | Prisma 7.10.1, las **15 tablas** con restricciones e índices, migración inicial, datos iniciales, las dos URL de Neon, diagrama relacional actualizado y pruebas de integración con PostgreSQL |
