@@ -338,7 +338,7 @@ packages/shared/
 
 | # | Rama | Cambio respecto al manual |
 |---|---|---|
-| 0 | `chore/monorepo-skeleton` | Añadir: decisión ESM/NodeNext, versiones fijadas (D1), Vitest 5 con `projects` (unit, integration, e2e) y umbrales por glob, `unplugin-swc` con una prueba que demuestre la DI por tipo, esqueleto de `packages/shared` (exports por subruta, catálogo de códigos vacío), docker compose de Postgres, CI con service container |
+| 0 | `chore/monorepo-skeleton` | Añadir: decisión ESM/NodeNext, versiones fijadas (D1), Vitest 5 con `projects` (unit, integration, e2e) y umbrales por glob, una prueba que demuestre la DI por tipo, esqueleto de `packages/shared` (exports por subruta, catálogo de códigos vacío), docker compose de Postgres, CI con service container | **Resultado:** sin `unplugin-swc` (ADR-010).
 | 1 | `feat/api-foundation` | Añadir: `nestjs-pino`, `StandardSchemaValidationPipe` global con `exceptionFactory` → RFC 9457, `standardSchemaConverter` de Swagger + prueba del `openapi.json`, `trust proxy` + `ClientIpThrottlerGuard`, límite del body, `enableShutdownHooks`, `listen(PORT, '0.0.0.0')` |
 | 1b | **`ci/deploy-api` adelantada** (antes era la 8) | Despliegue del esqueleto («walking skeleton») justo después de la 1. Valida pronto la IP real tras el proxy, el dominio de la API y la cookie (ver G1), los arranques en frío y WIF. Las migraciones se añaden cuando exista la 2 |
 | 2 | `feat/db-schema` | **Bloqueada por las preguntas de F.** Incluir índices, `created_at`/`updated_at`, restricciones `CHECK` y `ON DELETE`, y el seed. Dos URL de Neon |

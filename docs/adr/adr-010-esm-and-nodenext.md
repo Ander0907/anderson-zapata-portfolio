@@ -24,6 +24,14 @@
 - **CommonJS con `moduleFormat = "cjs"` en Prisma.** Descartada: funciona, pero rema contra los valores por defecto de Nest 12, Prisma 7 y Next.js.
 - **Mezcla (ESM en la web, CJS en la API).** Descartada implícitamente por la decisión «en todo el monorepo»: `packages/shared` lo consumen ambas aplicaciones.
 
+## Nota de implementación (2026-10-24, rama `chore/monorepo-skeleton`)
+
+- **Compilación de `packages/shared`:** se compila a `dist` con `tsc`. Cada subruta de `exports` tiene tres entradas: `@portfolio/source` (el `.ts` de `src`), `types` (el `.d.ts` de `dist`) y `default` (el `.js` de `dist`).
+- La API activa la condición `@portfolio/source` solo para desarrollo y pruebas: `customConditions` en `apps/api/tsconfig.json` (no en `tsconfig.build.json`), y `resolve.conditions` y `ssr.resolve.conditions` en `apps/api/vitest.config.ts`. En ejecución, Node usa lo compilado.
+- `pnpm build` (`pnpm -r build`) compila `shared` antes que la API.
+- Alternativas descartadas: exportar `.ts` sin compilar (rompe el build de la API por `rootDir` y obligaría a ejecutar TypeScript en producción) y project references de TypeScript (más configuración para el mismo resultado).
+- Node fijado en `.nvmrc` a 22.23.4.
+
 ## Consecuencias
 
 **Positivas**
