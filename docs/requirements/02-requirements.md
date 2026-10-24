@@ -43,7 +43,7 @@
 | RNF-03 | Accesibilidad | Cumplir WCAG 2.2 AA |
 | RNF-04 | SEO | Metadatos, Open Graph, sitemap, HTML semántico |
 | RNF-05 | Responsive | Escritorio, tablet y móvil |
-| RNF-06 | Seguridad | Hash de contraseñas, validación de entradas, rate limiting, CORS restringido, cabeceras de seguridad, secretos fuera del repo |
+| RNF-06 | Seguridad | Sin contraseñas propias: acceso al panel con GitHub y lista de permitidos (ADR-007); validación de entradas, rate limiting, CORS restringido o mismo origen (ADR-011), cabeceras de seguridad, secretos fuera del repo |
 | RNF-07 | Calidad de código | Linter, formatter, TypeScript estricto, commits convencionales |
 | RNF-08 | Pruebas | Unitarias e integración en backend; pruebas de componentes en frontend; algunas pruebas E2E del flujo crítico |
 | RNF-09 | Documentación | README, ADRs, diagramas de arquitectura, guía de instalación local |
