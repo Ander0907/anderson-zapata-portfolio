@@ -8,7 +8,7 @@
 - Prisma recomienda para GitHub Actions un **service container** de PostgreSQL. Su guía con Docker Compose es anterior a v7. Testcontainers (`@testcontainers/postgresql`) ofrece `getConnectionUri()` y snapshots.
 - En Windows, tanto Docker Compose como Testcontainers exigen Docker Desktop.
 - Las pruebas nunca deben tocar la base de Neon (ADR-019).
-- La inyección por tipo de Nest bajo Vitest necesita `unplugin-swc`, porque esbuild no emite `emitDecoratorMetadata` (riesgo G7).
+- La inyección por tipo de Nest bajo Vitest necesita metadatos de decoradores (riesgo G7). Resuelto sin `unplugin-swc`: verificado el 2026-10-24: Vitest 5.0.5 usa Vite 8 (Rolldown + Oxc), que emite los metadatos de decoradores a partir de `emitDecoratorMetadata` del `tsconfig`; no hace falta `unplugin-swc`. La prueba `apps/api/src/common/di/constructor-injection.spec.ts` falla si se desactiva esa opción y pasa con ella.
 
 ## Decisión
 
@@ -18,7 +18,7 @@
 - **Aislamiento:** `TRUNCATE ... RESTART IDENTITY CASCADE` antes de cada prueba, y los archivos de integración sin ejecutarse en paralelo (`fileParallelism: false` en ese proyecto de Vitest).
 - **Organización:** unitarias `*.spec.ts` junto al código; integración `*.int-spec.ts`; extremo a extremo en `test/e2e`; dobles y fábricas en `test/support` y `test/factories`, fuera de `src`. Vitest 5 con tres proyectos (unit, integration, e2e).
 - **Cobertura:** 90 % en `domain/` y `application/`, 80 % global. Se documenta en `vitest.config.ts` que los archivos del 90 % también cuentan para el 80 % (G10).
-- **Decoradores bajo Vitest:** la primera prueba del esqueleto debe demostrar que la inyección por tipo funciona con `unplugin-swc` (falla antes de configurarlo y pasa después). Si el esqueleto generado ya lo resuelve, se anota.
+- **Decoradores bajo Vitest:** verificado el 2026-10-24: Vitest 5.0.5 usa Vite 8 (Rolldown + Oxc), que emite los metadatos de decoradores a partir de `emitDecoratorMetadata` del `tsconfig`; no hace falta `unplugin-swc`. La prueba `apps/api/src/common/di/constructor-injection.spec.ts` falla si se desactiva esa opción y pasa con ella. La prueba se conserva como guarda de regresión de la configuración.
 
 ## Alternativas consideradas
 

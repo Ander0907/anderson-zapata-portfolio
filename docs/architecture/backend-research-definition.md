@@ -166,7 +166,7 @@
 - **Decisión (ADR-018):** `docker compose` en local y un _service container_ de PostgreSQL en CI. Una sola ruta de código, y la dirección de la base viene siempre del entorno. Testcontainers queda como alternativa si algún día se quiere ejecutar todo con un solo comando.
 - **Aislamiento:** `TRUNCATE ... RESTART IDENTITY CASCADE` antes de cada prueba y los archivos de integración sin ejecutarse en paralelo.
 - **Cobertura:** umbrales por carpeta (90 % en `domain/` y `application/`, 80 % global). Se documenta en `vitest.config.ts` que los archivos del 90 % también cuentan para el 80 %.
-- **Decoradores bajo Vitest:** la inyección de dependencias por tipo de Nest necesita una herramienta (`unplugin-swc`) que genere cierta información que Vitest por sí solo no genera. La primera prueba del esqueleto debe **demostrar que funciona** (falla antes de configurarlo y pasa después). Si el esqueleto generado ya lo resuelve, se anota.
+- **Decoradores bajo Vitest:** la inyección de dependencias por tipo de Nest necesita una herramienta (`unplugin-swc`) que genere cierta información que Vitest por sí solo no genera. La primera prueba del esqueleto debe **demostrar que funciona** (falla antes de configurarlo y pasa después). Si el esqueleto generado ya lo resuelve, se anota. **Resultado (2026-10-24):** no hizo falta `unplugin-swc`; ver ADR-010 y ADR-018.
 
 ---
 

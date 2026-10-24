@@ -17,7 +17,7 @@
 - `module` y `moduleResolution: "NodeNext"` en TypeScript.
 - Imports relativos con extensión `.js`.
 - **Node 22 LTS (≥ 22.12)** en local, CI y Docker.
-- Vitest 5 como runner, con `unplugin-swc` para emitir los metadatos de decoradores que necesita la inyección por tipo de Nest (ver ADR-018).
+- Vitest 5 como runner. La inyección por tipo de Nest funciona sin `unplugin-swc` (verificado el 2026-10-24: Vitest 5.0.5 usa Vite 8 (Rolldown + Oxc), que emite los metadatos de decoradores a partir de `emitDecoratorMetadata` del `tsconfig`; no hace falta `unplugin-swc`. La prueba `apps/api/src/common/di/constructor-injection.spec.ts` falla si se desactiva esa opción y pasa con ella; ver ADR-018).
 
 ## Alternativas consideradas
 
@@ -32,7 +32,7 @@
 
 **Negativas**
 - Imports relativos con `.js` en código TypeScript, algo poco intuitivo.
-- Vitest y los decoradores de Nest necesitan `unplugin-swc`; la primera prueba del esqueleto debe demostrar que la inyección por tipo funciona (riesgo G7).
+- La inyección por tipo depende de `emitDecoratorMetadata` en `tsconfig.base.json`: si se desactiva, Nest deja de resolver dependencias. Al cambiar el `tsconfig` en local hay que borrar `node_modules/.vitest-cache`, porque la caché de Vitest no se invalida sola (riesgo G7 resuelto).
 - Algunas librerías antiguas pueden no comportarse bien en ESM: se comprueba antes de añadirlas.
 
 ## Cuándo revisarla
