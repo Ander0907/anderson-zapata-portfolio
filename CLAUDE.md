@@ -2,6 +2,8 @@
 
 Reglas que no se negocian en este repositorio. El detalle está en `docs/process/06-manual-de-desarrollo.md`, que es la fuente de verdad del proceso. Si algo del manual contradice a `docs/architecture/05-arquitectura-tecnica.md` o a un ADR de `docs/adr/`, manda el documento de arquitectura o el ADR.
 
+Si el manual o un ADR contradicen `docs/architecture/backend-research-definition.md`, mandan el manual y los ADR: la definición es el origen de las decisiones, no su registro vigente. Si aún no hay ADR del tema, rige la definición; si hay conflicto, detente y pregunta a Anderson.
+
 ## Precedencia
 
 En este repositorio, **el manual prevalece sobre el `CLAUDE.md` global del usuario** (decisión de Anderson, 2026-10-24). En concreto:
