@@ -40,7 +40,7 @@ Portafolio personal de Anderson Zapata. El sitio público es estático; la API (
    docker compose up -d
    ```
 
-   El servicio escucha solo en `127.0.0.1:5432`.
+   El servicio escucha solo en `127.0.0.1` y en el puerto `POSTGRES_HOST_PORT` (5432 por defecto). Si el 5432 está ocupado (por ejemplo, por un PostgreSQL nativo), cambia `POSTGRES_HOST_PORT` en `.env` y usa ese mismo puerto en `DATABASE_URL` y `DATABASE_URL_UNPOOLED`. La CI no se ve afectada: usa un servicio PostgreSQL propio.
 
 4. Comprueba que el entorno funciona ejecutando la calidad completa (ver la tabla siguiente).
 
