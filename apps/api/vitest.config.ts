@@ -1,8 +1,10 @@
 import { defineConfig } from 'vitest/config';
 
 export default defineConfig({
-  // Resolve @portfolio/shared to its TypeScript source in tests (no build needed).
+  // Resolve @portfolio/shared to its TypeScript source in tests (no build needed). Vitest resolves
+  // server-side imports through ssr.resolve, so the condition is set in both places.
   resolve: { conditions: ['@portfolio/source'] },
+  ssr: { resolve: { conditions: ['@portfolio/source'] } },
   test: {
     // Each project passes with no files yet; the TDD branches add the first tests.
     projects: [

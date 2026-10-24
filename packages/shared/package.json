@@ -4,11 +4,24 @@
   "private": true,
   "type": "module",
   "exports": {
-    "./schemas/*": "./src/schemas/*.ts",
-    "./errors": "./src/errors/codes.ts",
-    "./messages/es": "./src/messages/es.ts"
+    "./schemas/*": {
+      "@portfolio/source": "./src/schemas/*.ts",
+      "types": "./dist/schemas/*.d.ts",
+      "default": "./dist/schemas/*.js"
+    },
+    "./errors": {
+      "@portfolio/source": "./src/errors/codes.ts",
+      "types": "./dist/errors/codes.d.ts",
+      "default": "./dist/errors/codes.js"
+    },
+    "./messages/es": {
+      "@portfolio/source": "./src/messages/es.ts",
+      "types": "./dist/messages/es.d.ts",
+      "default": "./dist/messages/es.js"
+    }
   },
   "scripts": {
+    "build": "tsc -p tsconfig.build.json",
     "typecheck": "tsc -p tsconfig.json --noEmit",
     "test": "vitest run",
     "test:cov": "vitest run --coverage"
