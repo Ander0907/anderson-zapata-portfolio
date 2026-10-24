@@ -31,6 +31,7 @@
 - `pnpm build` (`pnpm -r build`) compila `shared` antes que la API.
 - Alternativas descartadas: exportar `.ts` sin compilar (rompe el build de la API por `rootDir` y obligaría a ejecutar TypeScript en producción) y project references de TypeScript (más configuración para el mismo resultado).
 - Node fijado en `.nvmrc` a 22.23.4.
+- Pendiente para `apps/web`: Next.js tendrá que activar también la condición `@portfolio/source` (desarrollo) o consumir `dist` tras `pnpm build`.
 
 ## Consecuencias
 
