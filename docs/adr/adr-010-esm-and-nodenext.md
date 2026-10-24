@@ -17,12 +17,21 @@
 - `module` y `moduleResolution: "NodeNext"` en TypeScript.
 - Imports relativos con extensión `.js`.
 - **Node 22 LTS (≥ 22.12)** en local, CI y Docker.
-- Vitest 5 como runner, con `unplugin-swc` para emitir los metadatos de decoradores que necesita la inyección por tipo de Nest (ver ADR-018).
+- Vitest 5 como runner. La inyección por tipo de Nest funciona sin `unplugin-swc` (verificado el 2026-10-24: Vitest 5.0.5 usa Vite 8 (Rolldown + Oxc), que emite los metadatos de decoradores a partir de `emitDecoratorMetadata` del `tsconfig`; no hace falta `unplugin-swc`. La prueba `apps/api/src/common/di/constructor-injection.spec.ts` falla si se desactiva esa opción y pasa con ella; ver ADR-018).
 
 ## Alternativas consideradas
 
 - **CommonJS con `moduleFormat = "cjs"` en Prisma.** Descartada: funciona, pero rema contra los valores por defecto de Nest 12, Prisma 7 y Next.js.
 - **Mezcla (ESM en la web, CJS en la API).** Descartada implícitamente por la decisión «en todo el monorepo»: `packages/shared` lo consumen ambas aplicaciones.
+
+## Nota de implementación (2026-10-24, rama `chore/monorepo-skeleton`)
+
+- **Compilación de `packages/shared`:** se compila a `dist` con `tsc`. Cada subruta de `exports` tiene tres entradas: `@portfolio/source` (el `.ts` de `src`), `types` (el `.d.ts` de `dist`) y `default` (el `.js` de `dist`).
+- La API activa la condición `@portfolio/source` solo para desarrollo y pruebas: `customConditions` en `apps/api/tsconfig.json` (no en `tsconfig.build.json`), y `resolve.conditions` y `ssr.resolve.conditions` en `apps/api/vitest.config.ts`. En ejecución, Node usa lo compilado.
+- `pnpm build` (`pnpm -r build`) compila `shared` antes que la API.
+- Alternativas descartadas: exportar `.ts` sin compilar (rompe el build de la API por `rootDir` y obligaría a ejecutar TypeScript en producción) y project references de TypeScript (más configuración para el mismo resultado).
+- Node fijado en `.nvmrc` a 22.23.4.
+- Pendiente para `apps/web`: Next.js tendrá que activar también la condición `@portfolio/source` (desarrollo) o consumir `dist` tras `pnpm build`.
 
 ## Consecuencias
 
@@ -32,7 +41,7 @@
 
 **Negativas**
 - Imports relativos con `.js` en código TypeScript, algo poco intuitivo.
-- Vitest y los decoradores de Nest necesitan `unplugin-swc`; la primera prueba del esqueleto debe demostrar que la inyección por tipo funciona (riesgo G7).
+- La inyección por tipo depende de `emitDecoratorMetadata` en `tsconfig.base.json`: si se desactiva, Nest deja de resolver dependencias. Al cambiar el `tsconfig` en local hay que borrar `node_modules/.vitest-cache`, porque la caché de Vitest no se invalida sola (riesgo G7 resuelto).
 - Algunas librerías antiguas pueden no comportarse bien en ESM: se comprueba antes de añadirlas.
 
 ## Cuándo revisarla

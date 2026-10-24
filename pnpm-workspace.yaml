@@ -1,0 +1,11 @@
+packages:
+  - 'apps/*'
+  - 'packages/*'
+
+# GHSA-q7qp-rjg7-q26m: @nestjs/platform-express 12.2.0 pulls multer 2.4.0 (we do not accept
+# uploads, but CI audits it). Drop this override once Nest depends on multer >= 2.5.0.
+overrides:
+  '@nestjs/platform-express@12.2.0>multer': 2.5.0
+
+# An unapproved dependency build script fails the install instead of being skipped.
+strictDepBuilds: true
