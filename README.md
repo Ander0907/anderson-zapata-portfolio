@@ -26,7 +26,7 @@ Portafolio personal de Anderson Zapata. El sitio público es estático; la API (
    cp .env.example .env
    ```
 
-   En `.env` cambia `POSTGRES_PASSWORD` por una contraseña propia. El fichero `.env` no se sube al repositorio.
+   En `.env` cambia `POSTGRES_PASSWORD` por una contraseña propia. Si cambias `POSTGRES_PASSWORD` (o `POSTGRES_USER` / `POSTGRES_DB`), actualiza tambi�n `DATABASE_URL` y `DATABASE_URL_UNPOOLED` con los mismos valores. El fichero `.env` no se sube al repositorio.
 
 2. Instala las dependencias:
 
@@ -60,7 +60,7 @@ Los comandos de la raíz se ejecutan con `pnpm <script>` desde la raíz del repo
 | `pnpm typecheck` | Comprueba los tipos de cada paquete (`tsc --noEmit`). |
 | `pnpm test` | Ejecuta las pruebas de cada paquete con Vitest. |
 | `pnpm test:cov` | Ejecuta las pruebas con informe de cobertura. |
-| `pnpm --filter @portfolio/api build` | Compila `apps/api` a `dist/` con `tsconfig.build.json`. |
+| `pnpm build` | Compila todos los paquetes en orden topol�gico: primero `packages/shared` y despu�s `apps/api`, cada uno a su `dist/`. |
 | `pnpm --filter @portfolio/api test:unit` | Ejecuta solo las pruebas unitarias de la API. |
 | `pnpm --filter @portfolio/api test:int` | Ejecuta las pruebas de integración de la API (usan PostgreSQL). |
 | `pnpm --filter @portfolio/api test:e2e` | Ejecuta las pruebas e2e de la API. |
@@ -76,10 +76,11 @@ El flujo [`.github/workflows/ci.yml`](.github/workflows/ci.yml) se ejecuta en ca
 2. `pnpm format:check`
 3. `pnpm lint`
 4. `pnpm typecheck`
-5. `pnpm test:cov`
-6. `pnpm audit --prod --audit-level high`
+5. `pnpm build`
+6. `pnpm test:cov`
+7. `pnpm audit --prod --audit-level high` (bloqueante) y `pnpm audit --audit-level high` (informativo, no bloquea)
 
-La CI usa Node según `.nvmrc` y un servicio PostgreSQL `17.11-alpine`, la misma imagen que `docker-compose.yml`.
+La CI usa Node según `.nvmrc` y un servicio PostgreSQL `17.11-alpine` fijado por digest, la misma imagen que `docker-compose.yml`.
 
 ### TDD y cobertura
 
