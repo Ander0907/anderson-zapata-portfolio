@@ -39,13 +39,15 @@ Entrega continua   Pull request ──▶ CI (lint, tipos, pruebas, seguridad, L
 | 12 | Copias de seguridad | Volcado semanal a un bucket privado de Cloud Storage | Manual, ninguna | Neon gratis solo conserva 6 horas de historial |
 | 13 | ORM | Prisma 7 | Drizzle, TypeORM | Esquema legible, cliente tipado, migraciones SQL versionadas |
 | 14 | Anti-abuso del formulario | Campo trampa, límite de peticiones (`@nestjs/throttler`) y Cloudflare Turnstile | Solo las dos primeras | Defensa por capas |
-| 15 | Entornos y Git | Local y producción; ramas cortas con pull request y `main` protegida | Añadir staging | Mantenible por una persona; reversión rápida con las revisiones de Cloud Run |
+| 15 | Entornos y Git | Entornos: local y producción (sin staging). Git: ramas cortas desde `development` con pull request; promociones `development` (DEV) → `release` (UAT) → `main` (PDN), las tres protegidas. `release` es una rama de aceptación, no un entorno. Actualizado por decisión de Anderson el 2026-10-24 (ADR-020) | Añadir staging; ramas directas a `main` | Mantenible por una persona; reversión rápida con las revisiones de Cloud Run; solo `main` se despliega |
 
 ## 3. Cambios al modelo de datos
 
 Diagramas: `img/modelo-relacional-elegido.png` (el elegido) e `img/modelo-documentos-descartado.png` (la alternativa descartada, referencia del ADR-005).
 
-El modelo relacional de la fase de diseño pasa de 13 a **12 tablas**: sin contraseñas, no hace falta la tabla `admin_user`. La API acepta un único inicio de sesión de GitHub, indicado por una variable de entorno (`ADMIN_GITHUB_LOGIN`). Las demás tablas siguen igual: `profile`, `project`, `project_decision`, `technology`, `project_technology`, `experience`, `experience_item`, `experience_technology`, `skill_group`, `skill`, `reference` y `contact_message`.
+El modelo relacional de la fase de diseño pasó de 13 a 12 tablas: sin contraseñas, no hace falta la tabla `admin_user`. La API acepta un único inicio de sesión de GitHub, indicado por una variable de entorno (`ADMIN_GITHUB_LOGIN`).
+
+**Actualización del 2026-10-24 (Fase 0 del backend):** al contrastar el modelo con los requisitos y el diseño, pasa a **15 tablas**: `profile`, `profile_highlight`, `project`, `project_decision`, `project_flow_step`, `technology`, `project_technology`, `experience`, `experience_item`, `experience_technology`, `skill_group`, `skill`, `reference`, `contact_message` y `publish_event`. Los campos, restricciones e índices están en `backend-research-definition.md`, sección 4, que es la especificación. El diagrama `img/modelo-relacional-elegido.png` se rehace en la rama `feat/db-schema`; hasta entonces muestra la versión de 12 tablas.
 
 ## 4. Flujo de publicación
 
@@ -55,6 +57,12 @@ El modelo relacional de la fase de diseño pasa de 13 a **12 tablas**: sin contr
 4. El sitio resultante se despliega en Cloudflare. El proceso tarda unos minutos.
 
 Cada publicación consume un build de los 500 mensuales de Cloudflare Pages, si se usa ese producto. Cloudflare recomienda ahora Workers para proyectos nuevos; el método de despliegue exacto se confirma al implementarlo.
+
+**Actualizaciones del 2026-10-24 (Fase 0 del backend):**
+
+- **Dominio único (ADR-011).** El navegador solo habla con el dominio `.dev`: Cloudflare reenvía las rutas `/api/*` a Cloud Run. No hay CORS ni cookie de terceros, y la cookie de sesión del panel usa `SameSite=Strict` y el prefijo `__Host-`. Plan B: `api.<dominio>.dev` con la asignación de dominio de Cloud Run (en Preview). Se valida en `ci/deploy-api`.
+- **CV y foto** son archivos estáticos del sitio (`apps/web/public`), no se suben desde el panel. `profile.cv_url` y `profile.photo_url` guardan su ruta. El CV público no incluye el teléfono.
+- **Antirrebote de «Publicar»:** cada disparo se registra en `publish_event`, lo que protege los builds mensuales y permite mostrar «última publicación» en el panel.
 
 ## 5. Región y costes
 
@@ -84,7 +92,7 @@ La API y el bucket irán en `us-central1`, la región a la que se refieren las c
 | Artefactos de GitHub Actions en un repositorio público | No guardar volcados como artefactos; todo va al bucket privado |
 | Contador del límite de peticiones incorrecto detrás del proxy | Configurar la IP real del cliente al implementar el límite |
 | Turnstile y privacidad (RNF-14) | Revisar cookies y datos que recoge antes de integrarlo; si no encaja, usar solo las dos primeras capas |
-| Prisma: versión y generación del cliente | Fijar `prisma@7` y ejecutar `prisma generate` en el pipeline |
+| Prisma: versión y generación del cliente | Fijar `prisma@7.10.1` exacto (el `latest` de npm es una RC de Prisma 8 desde octubre de 2026) y ejecutar `prisma generate` en el pipeline |
 | Sentry: términos de uso y tarjeta no confirmados | Verificar al crear la cuenta |
 
 ## 7. Pipeline de CI/CD
@@ -93,7 +101,7 @@ La API y el bucket irán en `us-central1`, la región a la que se refieren las c
 - **Antes de desplegar:** pruebas E2E del flujo crítico con Playwright.
 - **Al fusionar en `main`:** imagen Docker de la API a Cloud Run; sitio a Cloudflare.
 - **Programado:** volcado semanal de la base de datos.
-- **Reglas del repositorio:** `main` protegida, pull request obligatorio, commits convencionales.
+- **Reglas del repositorio:** `development`, `release` y `main` protegidas; pull request obligatorio en las tres; commits convencionales; solo `main` dispara el despliegue.
 
 ## 8. ADR por redactar
 
@@ -106,13 +114,15 @@ La API y el bucket irán en `us-central1`, la región a la que se refieren las c
 7. Entrar con GitHub en lugar de contraseñas propias.
 8. Límite de peticiones en memoria con una sola instancia (revisable si se escala).
 
+La numeración de los ADR es independiente de la tabla de decisiones de la sección 2. La Fase 0 del backend añadió doce más (009–020): validación con Zod, ESM y NodeNext, dominio único y cookie, sesión firmada, formato de errores, logs con pino, adaptador OAuth propio, `/health` sin base de datos, regla H1–H4, pruebas con base de datos, Prisma 7 con dos URL de Neon, y flujo de ramas DEV → UAT → PDN. La lista completa está en `backend-research-definition.md`, sección 6. Los ADR viven en `docs/adr/`.
+
 ## 9. Pendientes
 
 - Verificar los límites de cada plan al crear cada cuenta y anotar la fecha.
 - Confirmar en Cloudflare el precio exacto del `.dev` y que el nombre esté disponible.
 - Revisar la política de cookies y datos de Turnstile (RNF-14) y los términos de Sentry.
 - Elegir el método de despliegue en Cloudflare (Pages o Workers con activos estáticos).
-- Actualizar el diagrama relacional a 12 tablas.
+- Actualizar el diagrama relacional a 15 tablas (en la rama `feat/db-schema`).
 - Del contenido: enlaces del proyecto del SENA, datos de las tres referencias, color de error en tema oscuro.
 
 ## 10. Fuentes
