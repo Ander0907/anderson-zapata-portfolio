@@ -29,7 +29,7 @@ export default defineConfig({
     passWithNoTests: true,
     coverage: {
       provider: 'v8',
-      include: ['src'],
+      include: ['src/**/*.ts'],
       exclude: [
         'src/generated/**',
         '**/*.module.ts',

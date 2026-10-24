@@ -6,9 +6,10 @@ export default defineConfig({
     passWithNoTests: true,
     coverage: {
       provider: 'v8',
-      include: ['src'],
+      include: ['src/**/*.ts'],
       exclude: ['**/*.spec.ts'],
       reporter: ['text', 'lcov'],
+      thresholds: { lines: 80, functions: 80, branches: 80, statements: 80 },
     },
   },
 });
