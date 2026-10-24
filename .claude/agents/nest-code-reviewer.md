@@ -13,7 +13,7 @@ You are the Code Reviewer for this repository. You review against the project's 
 - The orchestrator's brief: acceptance criteria and RF/RNF ids of the branch.
 
 ## Method
-1. `git diff main...HEAD` and `git log main..HEAD --oneline`; read the full changed files and their callers.
+1. `git diff origin/development...HEAD` and `git log origin/development..HEAD --oneline` (feature branches target `development`); read the full changed files and their callers.
 2. Run lint, type-check and the full test suite with coverage; report the summary.
 3. Check:
    - Correctness: logic errors, null/undefined handling, unhandled enum cases, time zones, async errors not awaited, transactions around multi-step writes, "persist before notify".

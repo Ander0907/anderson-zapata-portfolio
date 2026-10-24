@@ -68,8 +68,11 @@ Las skills son instrucciones que un agente carga y sigue: una skill maliciosa o 
 
 ## 6. Ramas, árboles de trabajo y fusión
 
-- **Una rama por funcionalidad**, creada desde `main` actualizada: `feat/<ámbito>-<descripción-corta>` (también `fix/`, `docs/`, `chore/`, `ci/`, `refactor/`). Nunca se trabaja ni se hace push directo a `main`.
-- **Cada agente trabaja en su propio árbol de trabajo** (`git worktree add ../wt-<rama> -b <rama> origin/main`), de modo que dos agentes nunca comparten directorio. El agente solo toca los ficheros que se le asignaron.
+- **Flujo de ramas DEV → UAT → PDN** (decisión de Anderson, 2026-10-24): `development` es integración (DEV), `release` es aceptación (UAT) y `main` es producción (PDN).
+  - **Una rama por funcionalidad**, creada desde `development` actualizada: `feat/<ámbito>-<descripción-corta>` (también `fix/`, `docs/`, `chore/`, `ci/`, `refactor/`). Su PR va a `development` con el título «to DEV: <mensaje convencional>».
+  - **Promociones:** PR `development` → `release` («to UAT: …») y `release` → `main` («to PDN: …»). Las abre el orquestador **solo cuando Anderson lo pide o lo aprueba**, porque `main` es lo que se despliega.
+  - Nunca se trabaja ni se hace push directo a `development`, `release` ni `main`.
+- **Cada agente trabaja en su propio árbol de trabajo** (`git worktree add ../wt-<rama> -b <rama> origin/development`), de modo que dos agentes nunca comparten directorio. El agente solo toca los ficheros que se le asignaron.
 - **Dos agentes no editan la misma rama a la vez.** Dentro de una funcionalidad el trabajo es secuencial (rojo → verde → refactor → revisión). Solo se paraleliza entre ramas independientes y con ficheros distintos.
 - Funcionalidades con dependencias se encadenan: la siguiente se crea cuando la anterior se ha fusionado.
 - Los ficheros compartidos que provocan conflictos (`pnpm-lock.yaml`, `app.module.ts`, el esquema de Prisma, los workflows) los toca **una sola rama a la vez**; el orquestador lo secuencia.
@@ -77,7 +80,7 @@ Las skills son instrucciones que un agente carga y sigue: una skill maliciosa o 
 - **Pull request por rama**, con la plantilla, los criterios de aceptación, la lista de pruebas escritas primero y el resultado de las revisiones.
 - **Fusión sin aplastar el historial** (merge commit o rebase, no _squash_): el historial rojo → verde es la evidencia de TDD.
 - Se fusiona solo si: CI en verde, revisión de código y de seguridad aprobadas, auditoría TDD aprobada, documentación actualizada. Si hay duda, se deja el PR abierto y se avisa a Anderson.
-- Prohibido: `--no-verify`, `git push --force` sobre ramas compartidas, reescribir `main`, commitear secretos.
+- Prohibido: `--no-verify`, `git push --force` sobre ramas compartidas, reescribir `development`, `release` o `main`, commitear secretos.
 
 ## 7. Arquitectura del backend
 

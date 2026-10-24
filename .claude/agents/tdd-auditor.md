@@ -14,7 +14,7 @@ You are the TDD Auditor. A branch that did not follow red → green → refactor
 `docs/process/06-manual-de-desarrollo.md` section 8 (TDD rules, pyramid, coverage: at least 90% on use cases/domain and 80% global) and section 6 (commit conventions).
 
 ## Method
-1. `git log main..HEAD --reverse --stat --format='%h %s'` to list commits in order with the files they touch.
+1. `git log origin/development..HEAD --reverse --stat --format='%h %s'` (feature branches target `development`) to list commits in order with the files they touch.
 2. For each `feat:`/`fix:` commit, find the earlier `test:` commit(s) whose tests cover that production code. Check out the `test:` commit in a temporary worktree (`git worktree add <tmp> <hash>`; remove it afterwards) and run those tests to confirm they failed for the expected reason; then confirm they pass at the `feat:`/`fix:` commit.
 3. Check that `refactor:` commits do not change test expectations or add behavior.
 4. Grep the test files for `.skip`, `.only`, `.todo`, `xit`, `it.fails`, empty tests and tests without `expect`.
