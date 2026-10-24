@@ -10,15 +10,37 @@ const processEnvImportPaths = ['node:process', 'process'].map((name) => ({
   message: 'Read configuration through src/config only.',
 }));
 
-/** Imports that domain/ and application/ must never reach (rule D14, manual 7.2). */
-const layerRestrictedImports = {
+const frameworkImportPatterns = (nestGroup, message) => ({
+  group: [...nestGroup, '@prisma/*', '**/generated/**', 'express', 'resend'],
+  message,
+});
+
+/** domain/ imports no framework at all (rule D14, manual 7.2). */
+const domainRestrictedImports = {
   paths: processEnvImportPaths,
   patterns: [
+    frameworkImportPatterns(
+      ['@nestjs/*'],
+      'domain/ must stay framework-free: no @nestjs/*, Prisma, Express or Resend.',
+    ),
+  ],
+};
+
+/** application/ may only use the DI decorators of @nestjs/common (rule D14, manual 7.2). */
+const applicationRestrictedImports = {
+  paths: [
+    ...processEnvImportPaths,
     {
-      group: ['@prisma/*', '**/generated/**', '@nestjs/*', '!@nestjs/common', 'express', 'resend'],
-      message:
-        'domain/ and application/ must stay framework-free: only @nestjs/common (for @Injectable/@Inject) is allowed.',
+      name: '@nestjs/common',
+      allowImportNames: ['Injectable', 'Inject'],
+      message: 'application/ may import only Injectable and Inject from @nestjs/common.',
     },
+  ],
+  patterns: [
+    frameworkImportPatterns(
+      ['@nestjs/*', '!@nestjs/common'],
+      'application/ must stay framework-free: only Injectable and Inject from @nestjs/common.',
+    ),
   ],
 };
 
@@ -65,6 +87,12 @@ export default tseslint.config(
             "VariableDeclarator[init.name='process'] > ObjectPattern > Property[key.name='env']",
           message: 'Do not destructure env from process; read configuration through src/config.',
         },
+        {
+          selector:
+            "MemberExpression[object.object.name='globalThis'][object.property.name='process'][property.name='env']",
+          message:
+            'Do not reach process.env through globalThis; read configuration through src/config.',
+        },
       ],
       'no-restricted-imports': [
         'error',
@@ -75,7 +103,8 @@ export default tseslint.config(
     },
   },
   {
-    files: ['apps/api/src/config/**'],
+    // Config is the one reader of process.env; test/support holds DB helpers for integration tests (ADR-018).
+    files: ['apps/api/src/config/**', 'apps/api/test/support/**'],
     rules: {
       'no-restricted-properties': 'off',
       'no-restricted-syntax': 'off',
@@ -83,9 +112,15 @@ export default tseslint.config(
     },
   },
   {
-    files: ['**/domain/**', '**/application/**'],
+    files: ['**/domain/**'],
     rules: {
-      'no-restricted-imports': ['error', layerRestrictedImports],
+      'no-restricted-imports': ['error', domainRestrictedImports],
+    },
+  },
+  {
+    files: ['**/application/**'],
+    rules: {
+      'no-restricted-imports': ['error', applicationRestrictedImports],
     },
   },
   prettier,
