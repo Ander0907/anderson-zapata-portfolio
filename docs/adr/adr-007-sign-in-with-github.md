@@ -17,7 +17,7 @@
 ## Alternativas consideradas
 
 - **Correo y contraseña.** Descartada: obliga a guardar contraseñas y a construir su recuperación.
-- **Enlace mágico.** Descartada por el motivo común de la tabla de decisiones: GitHub ofrece menor superficie de ataque. [PENDIENTE: la tabla agrupa ambos descartes bajo un único motivo; no hay un análisis separado del enlace mágico.]
+- **Enlace mágico.** Descartada. Obligaría a enviar un correo en cada inicio de sesión, lo que hace depender la entrada al panel de Resend y de su cupo de 100 correos al día. Con GitHub, el único tercero es el proveedor de identidad, que ya se usa. Es un argumento de diseño de Anderson (2026-10-24), no un dato medido.
 
 ## Consecuencias
 
@@ -28,7 +28,7 @@
 **Negativas**
 - Dependencia de la disponibilidad de GitHub y de la cuenta personal de Anderson para entrar al panel.
 - Requiere implementar OAuth con cuidado (`state`, PKCE, comprobación de la cuenta): ver ADR-015.
-- **Conflicto documental:** RNF-06 ([02-requirements](../requirements/02-requirements.md)) incluye «Hash de contraseñas». Con esta decisión no hay contraseñas propias; el requisito queda sin objeto y debería actualizarse.
+- RNF-06 ([02-requirements](../requirements/02-requirements.md)) pedía «hash de contraseñas». Se actualizó el 2026-10-24: sin contraseñas propias, con acceso mediante GitHub y lista de permitidos.
 
 ## Cuándo revisarla
 

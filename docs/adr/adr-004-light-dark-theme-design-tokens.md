@@ -24,7 +24,7 @@ Los contrastes de cada par de tokens están verificados con la fórmula de lumin
 
 ## Alternativas consideradas
 
-- [PENDIENTE: el documento de diseño no registra alternativas evaluadas (por ejemplo, otra forma de definir o aplicar el tema) ni sus motivos de descarte.]
+- No se evaluaron alternativas (confirmado por Anderson, 2026-10-24).
 
 ## Consecuencias
 

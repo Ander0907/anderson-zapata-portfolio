@@ -21,8 +21,7 @@
 ## Alternativas consideradas
 
 - **Render.** Descartada como opción principal: declara que su plan gratis no es para producción. Queda como **plan B** (sin tarjeta, con arranque lento).
-- **Railway.** Descartada. [PENDIENTE: motivo concreto de descarte; la tabla de decisiones no lo detalla.]
-- **Dejar la API para después.** Descartada. [PENDIENTE: motivo concreto de descarte; la tabla de decisiones no lo detalla.]
+- **Railway** y **dejar la API para después.** Descartadas sin un motivo propio documentado (confirmado por Anderson, 2026-10-24). Aplica el motivo general de elegir Cloud Run: ejecuta el contenedor Docker tal cual, escala a cero y da 2 millones de peticiones gratis al mes.
 
 ## Consecuencias
 

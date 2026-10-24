@@ -7,7 +7,7 @@
 - El portafolio lo construye y mantiene una sola persona, en sesiones de fin de semana, y el repositorio es público desde el primer commit porque los entrevistadores revisan el código y la arquitectura ([01-discovery](../discovery/01-discovery.md)).
 - El sistema tiene dos aplicaciones (sitio Next.js y API NestJS) que comparten contratos: los esquemas de validación del formulario y los tipos del contenido publicado que el build lee de la API ([backend-research-definition §2.1](../architecture/backend-research-definition.md)).
 - Todo el CI/CD vive en GitHub Actions y «el pipeline completo queda visible en el repositorio» (decisión 5 de [05-arquitectura-tecnica §2](../architecture/05-arquitectura-tecnica.md)).
-- El documento de arquitectura lista este ADR como «Un monorepo en lugar de dos repositorios» (§8), pero no desarrolla los motivos. [PENDIENTE: motivos originales de Anderson para elegir monorepo frente a dos repositorios; aquí solo se recogen los hechos documentados que dependen de esta decisión.]
+- Motivo principal, según Anderson (2026-10-24): **un monorepo centraliza el desarrollo y facilita que los reclutadores técnicos revisen el código fuente** en un solo lugar.
 
 ## Decisión
 
@@ -21,7 +21,7 @@ Todo el monorepo usa ESM y NodeNext (ADR-010).
 
 ## Alternativas consideradas
 
-- **Dos repositorios (web y API).** Descartada. [PENDIENTE: motivo de descarte documentado por Anderson.] Hechos que la hacen más costosa en este proyecto: la regla de validación se escribe una sola vez en `packages/shared` y la usan la web y la API (ADR-009); con dos repositorios ese paquete tendría que publicarse o copiarse.
+- **Dos repositorios (web y API).** Descartada: dispersa el código que un evaluador técnico quiere revisar en un solo lugar. Además, la hacen más costosa en este proyecto: la regla de validación se escribe una sola vez en `packages/shared` y la usan la web y la API (ADR-009); con dos repositorios ese paquete tendría que publicarse o copiarse.
 
 ## Consecuencias
 
