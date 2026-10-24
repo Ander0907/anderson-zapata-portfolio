@@ -5,7 +5,7 @@ import { afterAll, beforeAll, describe, it } from 'vitest';
 import { AppModule } from '../../src/app.module.js';
 
 describe('Application bootstrap (manual section 12, row 0)', () => {
-  let app: INestApplication;
+  let app: INestApplication<Parameters<typeof request>[0]>;
 
   beforeAll(async () => {
     const moduleRef = await Test.createTestingModule({ imports: [AppModule] }).compile();
