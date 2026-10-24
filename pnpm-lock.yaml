@@ -5,7 +5,7 @@ settings:
   excludeLinksFromLockfile: false
 
 overrides:
-  multer: 2.5.0
+  '@nestjs/platform-express@12.2.0>multer': 2.5.0
 
 importers:
 
