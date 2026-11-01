@@ -51,7 +51,7 @@ La decisión se mantiene. Se concretan estos puntos:
 - **Montaje de `pino-http`.** Se monta el primero en `configureApp`, y `LoggerModule` usa `useExisting: true` para no montarlo dos veces y duplicar los logs. Lo que Node rechaza antes de llegar a Express (HTTP inválido, cabeceras excesivas) no pasa por este middleware.
 - **Identificador de petición.** Se genera en `genReqId`.
 - **Peticiones rechazadas por el parser de cuerpo.** Se registran dos entradas: un WARNING, sin el cuerpo, y la línea de cierre `request completed`.
-- **Errores 500.** También son dos entradas: un ERROR (`Request failed`) y la línea de cierre (`request errored`, con gravedad `INFO`). La segunda entrada ERROR también se escribe cuando las cabeceras ya se enviaron y el status es 4xx (`problem-details.filter.ts`, línea 86).
+- **Errores 500.** También son dos entradas: un ERROR (`Request failed`) y la línea de cierre (`request errored`, con gravedad `INFO`). La segunda entrada ERROR también se escribe cuando las cabeceras ya se enviaron y el status es 4xx (método `log` de `problem-details.filter.ts`).
 
 Estas dos entradas por petición se conservan, por decisión de Anderson (2026-11-01).
 

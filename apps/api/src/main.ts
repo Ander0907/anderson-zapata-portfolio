@@ -1,6 +1,12 @@
 import { createApp } from './app.setup.js';
 import { loadEnv } from './config/env.js';
 
+/**
+ * Starts the API: loads the configuration, builds the application and serves it on `PORT`.
+ *
+ * It binds all IPv4 interfaces because Cloud Run reaches the container from outside. Any failure
+ * rejects the returned promise, which the handler below reports.
+ */
 async function bootstrap(): Promise<void> {
   const env = loadEnv();
   const app = await createApp(env);
