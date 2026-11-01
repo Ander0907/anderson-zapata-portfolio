@@ -234,6 +234,23 @@ describe('Edge protection (B1 to B4, ADR-008, ADR-011, manual 7.5, D5)', () => {
       await ping(server, '3.3.3.3, 9.9.9.9').expect(429);
     });
 
+    it('shares one counter between IPv6 addresses of the same /64', async () => {
+      const server = await start({ env: limited });
+
+      await ping(server, '1.1.1.1, 2001:db8:1:2::1').expect(200);
+      await ping(server, '1.1.1.1, 2001:db8:1:2:ffff::9').expect(200);
+      await ping(server, '1.1.1.1, 2001:db8:1:2:abcd::5').expect(429);
+    });
+
+    it('gives an IPv6 address of a different /64 its own counter', async () => {
+      const server = await start({ env: limited });
+      await ping(server, '1.1.1.1, 2001:db8:1:2::1');
+      await ping(server, '1.1.1.1, 2001:db8:1:2::2');
+      await ping(server, '1.1.1.1, 2001:db8:1:2::3').expect(429);
+
+      await ping(server, '1.1.1.1, 2001:db8:1:3::1').expect(200);
+    });
+
     it('gives a different rightmost entry its own counter', async () => {
       const server = await start({ env: limited });
       await ping(server, '1.1.1.1, 9.9.9.9');
