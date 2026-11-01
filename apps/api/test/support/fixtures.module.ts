@@ -28,6 +28,11 @@ export const fixtureItemSchema = z.strictObject({
 export class FixtureController {
   private readonly logger = new Logger('Fixture');
 
+  @Get('p/:param')
+  withParam(@Param('param') param: string): { param: string } {
+    return { param };
+  }
+
   @Get('ping')
   ping(): { pong: true } {
     return { pong: true };

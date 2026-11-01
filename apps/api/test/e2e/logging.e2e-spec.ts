@@ -14,9 +14,9 @@ describe('Structured logging and request id (A3, ADR-014, D13)', () => {
   let app: NestExpressApplication | undefined;
   const logs = sharedLogs;
 
-  const start = async (env: Record<string, string> = {}) => {
+  const start = async () => {
     logs.clear();
-    app = await createTestApp({ fixtures: [FixtureModule], env });
+    app = await createTestApp({ fixtures: [FixtureModule] });
     return app.getHttpServer();
   };
 

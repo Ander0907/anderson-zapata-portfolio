@@ -42,4 +42,21 @@ describe('Cloud Logging trace correlation with GCP_PROJECT_ID set (A3, ADR-014, 
     expect(entries.length).toBeGreaterThan(0);
     expect(entries.some((entry) => TRACE_FIELD in entry)).toBe(false);
   });
+
+  describe('requests rejected by the body parser', () => {
+    const tracedWarning = () => sharedLogs.entries().find((entry) => entry.severity === 'WARNING');
+
+    it.each([
+      ['malformed JSON', () => '{"broken": '],
+      ['a body over the limit', () => JSON.stringify({ pad: 'a'.repeat(17_000) })],
+    ])('carries the trace field in the WARNING for %s', async (_name, body) => {
+      await request(app.getHttpServer())
+        .post('/v1/fixtures/raw')
+        .set('Content-Type', 'application/json')
+        .set('X-Cloud-Trace-Context', `${TRACE_ID}/1`)
+        .send(body());
+
+      expect(tracedWarning()?.[TRACE_FIELD]).toBe(`projects/my-project/traces/${TRACE_ID}`);
+    });
+  });
 });

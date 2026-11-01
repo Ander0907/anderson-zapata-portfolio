@@ -42,7 +42,7 @@ describe('Edge protection (B1 to B4, ADR-008, ADR-011, manual 7.5, D5)', () => {
   });
 
   describe('CORS with no allowed origins, same-origin model (B2)', () => {
-    // Pass at once: CORS is simply not enabled today. They guard against enabling it by default.
+    // Guard: without a list, CORS must stay disabled (no Access-Control header of any kind).
     it('sends no Access-Control header on a simple request', async () => {
       const response = await request(await start())
         .get('/health')
