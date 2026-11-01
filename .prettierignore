@@ -3,6 +3,7 @@ dist
 coverage
 pnpm-lock.yaml
 apps/api/src/generated
+apps/api/openapi.json
 .claude
 docs
 *.md
