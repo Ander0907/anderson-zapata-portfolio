@@ -1,6 +1,13 @@
 import type { IncomingMessage, ServerResponse } from 'node:http';
-import { HttpException } from '@nestjs/common';
+import { HttpException, type HttpExceptionOptions } from '@nestjs/common';
 import { ERROR_CODES } from '@portfolio/shared/errors';
+
+/** Keeps nothing of the parser error: its message and `body` can quote what the client sent. */
+export class BodyRejectedException extends HttpException {
+  constructor(status: number, options: HttpExceptionOptions) {
+    super('Request body rejected', status, options);
+  }
+}
 
 const isClientError = (error: unknown): error is { status: number } =>
   typeof error === 'object' &&
@@ -25,8 +32,7 @@ export function translateBodyParserError(
     return;
   }
   next(
-    new HttpException(
-      'Request body rejected',
+    new BodyRejectedException(
       error.status,
       error instanceof SyntaxError ? { errorCode: ERROR_CODES.MALFORMED_JSON } : {},
     ),

@@ -9,6 +9,7 @@ import {
 import { HttpAdapterHost } from '@nestjs/core';
 import { ERROR_CODES, type ErrorCode } from '@portfolio/shared/errors';
 import { PinoLogger } from 'nestjs-pino';
+import { BodyRejectedException } from '../http/body-parser-errors.js';
 import { ValidationFailedException } from './validation-failed.exception.js';
 
 const GENERIC_DETAIL = 'An unexpected error occurred.';
@@ -58,10 +59,14 @@ export class ProblemDetailsFilter implements ExceptionFilter {
   catch(exception: unknown, host: ArgumentsHost): void {
     const http = host.switchToHttp();
     const status = statusOf(exception);
-    const traceId = http.getRequest<{ id: string }>().id;
+    const request = http.getRequest<{ id: string }>();
+    const traceId = request.id;
 
     if (isServerError(status)) {
       this.logger.error({ err: exception, traceId }, 'Request failed');
+    } else if (exception instanceof BodyRejectedException) {
+      // These requests never reach the pino-http middleware, so nothing else logs them.
+      this.logger.warn({ req: request, status }, 'Request body rejected');
     }
 
     const { httpAdapter } = this.adapterHost;
