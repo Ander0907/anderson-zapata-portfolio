@@ -130,4 +130,27 @@ describe('Problem Details error responses (A5, ADR-013, ADR-014)', () => {
       code: 'MALFORMED_JSON',
     });
   });
+
+  it('keeps traceId equal to X-Request-Id for malformed JSON', async () => {
+    const response = await request(app.getHttpServer())
+      .post('/v1/fixtures/raw')
+      .set('Content-Type', 'application/json')
+      .set('X-Request-Id', 'client-id-42')
+      .send('{"broken": ');
+
+    expect(response.status).toBe(400);
+    expect(problemOf(response).traceId).toBe('client-id-42');
+    expect(response.headers['x-request-id']).toBe('client-id-42');
+  });
+
+  it.each([
+    ['bad-request', 400, 'BAD_REQUEST'],
+    ['unauthorized', 401, 'UNAUTHORIZED'],
+    ['forbidden', 403, 'FORBIDDEN'],
+  ])('maps a %s HttpException without errorCode to %s', async (path, status, code) => {
+    const response = await request(app.getHttpServer()).get(`/v1/fixtures/${path}`);
+
+    expect(response.status).toBe(status);
+    expect(problemOf(response).code).toBe(code);
+  });
 });

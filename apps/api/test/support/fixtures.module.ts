@@ -1,5 +1,9 @@
 import {
+  BadRequestException,
   Body,
+  ForbiddenException,
+  Param,
+  UnauthorizedException,
   Controller,
   Get,
   HttpException,
@@ -42,6 +46,37 @@ export class FixtureController {
   @Get('not-found')
   notFound(): never {
     throw new NotFoundException('missing');
+  }
+
+  @Get('bad-request')
+  badRequest(): never {
+    throw new BadRequestException('bad');
+  }
+
+  @Get('unauthorized')
+  unauthorized(): never {
+    throw new UnauthorizedException('no');
+  }
+
+  @Get('forbidden')
+  forbidden(): never {
+    throw new ForbiddenException('no');
+  }
+
+  @Get('log-level/:level')
+  logLevel(@Param('level') level: string): { ok: true } {
+    const marker = { marker: `level-${level}` };
+    const logger = this.logger;
+    const emit: Record<string, () => void> = {
+      trace: () => logger.verbose(marker),
+      debug: () => logger.debug(marker),
+      info: () => logger.log(marker),
+      warn: () => logger.warn(marker),
+      error: () => logger.error(marker),
+      fatal: () => logger.fatal(marker),
+    };
+    emit[level]?.();
+    return { ok: true };
   }
 
   @Get('teapot')
