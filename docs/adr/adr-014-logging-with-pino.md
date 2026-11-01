@@ -43,11 +43,17 @@
 
 ## Actualización (2026-11-01)
 
-La decisión se mantiene. Se concretan tres puntos:
+La decisión se mantiene. Se concretan estos puntos:
 
 - **Gravedad explícita.** La correspondencia con Cloud Logging es un mapa fijo: `trace` → `DEBUG`, `warn` → `WARNING`, `fatal` → `CRITICAL`. Pasar el nivel de pino en mayúsculas no siempre da un valor válido.
-- **Serializadores con lista de permitidos.** Solo se registran `id`, `method`, la ruta sin query string y `statusCode`. Así no se registran cabeceras ni query strings.
-- **Peticiones rechazadas por el parser de cuerpo.** Se registra un único WARNING, sin el cuerpo.
+- **Serializadores con lista de permitidos.** Solo se registran `id`, `method`, la ruta sin query string, `urlTruncated` cuando procede y `statusCode`. Así no se registran cabeceras ni query strings.
+- **URL acotada.** Tras quitar la query string, `req.url` se recorta a 2048 caracteres y se añade `urlTruncated: true`. Una URL más corta no lleva ese campo.
+- **Montaje de `pino-http`.** Se monta el primero en `configureApp`, y `LoggerModule` usa `useExisting: true` para no montarlo dos veces y duplicar los logs. Lo que Node rechaza antes de llegar a Express (HTTP inválido, cabeceras excesivas) no pasa por este middleware.
+- **Identificador de petición.** Se genera en `genReqId`.
+- **Peticiones rechazadas por el parser de cuerpo.** Se registran dos entradas: un WARNING, sin el cuerpo, y la línea de cierre `request completed`.
+- **Errores 500.** También son dos entradas: un ERROR (`Request failed`) y la línea de cierre (`request errored`, con gravedad `INFO`).
+
+Estas dos entradas por petición son el comportamiento actual. Queda pendiente de decisión de Anderson.
 
 ## Fuentes
 
