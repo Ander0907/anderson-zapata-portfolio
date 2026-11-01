@@ -69,8 +69,9 @@ describe('Swagger UI under the helmet CSP (C4, D16)', () => {
     const assets = [...html.matchAll(/(?:src|href)="([^"#]+\.(?:js|css|png))"/g)].map((m) => m[1]);
     expect(assets.length).toBeGreaterThan(0);
     for (const asset of assets) {
-      const path = asset?.startsWith('/') ? asset : `/docs/${asset}`;
-      await request(server).get(path).expect(200);
+      // Resolve against the page URL as a browser does.
+      const { pathname } = new URL(asset ?? '', 'http://localhost/docs');
+      await request(server).get(pathname).expect(200);
     }
   });
 
