@@ -53,7 +53,7 @@ La decisión se mantiene. Se concretan estos puntos:
 - **Peticiones rechazadas por el parser de cuerpo.** Se registran dos entradas: un WARNING, sin el cuerpo, y la línea de cierre `request completed`.
 - **Errores 500.** También son dos entradas: un ERROR (`Request failed`) y la línea de cierre (`request errored`, con gravedad `INFO`). La segunda entrada ERROR también se escribe cuando las cabeceras ya se enviaron y el status es 4xx (`problem-details.filter.ts`, línea 86).
 
-Estas dos entradas por petición son el comportamiento actual. Queda pendiente de decisión de Anderson.
+Estas dos entradas por petición se conservan, por decisión de Anderson (2026-11-01).
 
 ## Fuentes
 
