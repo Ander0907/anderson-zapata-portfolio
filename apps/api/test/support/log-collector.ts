@@ -6,6 +6,7 @@ export interface LogCollector {
   readonly destination: DestinationStream;
   entries(): LogEntry[];
   raw(): string;
+  clear(): void;
 }
 
 /** In-memory pino destination: lets tests assert on what the application logged. */
@@ -26,5 +27,16 @@ export function createLogCollector(): LogCollector {
         }
       }),
     raw: () => lines.join('\n'),
+    clear: () => {
+      lines.length = 0;
+    },
   };
 }
+
+/**
+ * Process-wide collector. nestjs-pino keeps one pino-http instance per module registry, so the
+ * first app built in a spec file fixes the log destination for every later app in that file.
+ * Every test therefore shares this destination and clears it in beforeEach. Vitest isolates
+ * modules per spec file, so each file gets its own logger configuration.
+ */
+export const sharedLogs: LogCollector = createLogCollector();

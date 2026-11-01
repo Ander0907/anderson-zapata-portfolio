@@ -5,6 +5,7 @@ import type { DestinationStream } from 'pino';
 import { configureApp, NEST_APP_OPTIONS } from '../../src/app.setup.js';
 import { AppModule } from '../../src/app.module.js';
 import { parseEnv } from '../../src/config/env.js';
+import { sharedLogs } from './log-collector.js';
 
 export interface TestAppOptions {
   /** Environment variables on top of NODE_ENV=test; they go through parseEnv like in production. */
@@ -19,10 +20,7 @@ export async function createTestApp(options: TestAppOptions = {}): Promise<NestE
   const env = parseEnv({ NODE_ENV: 'test', LOG_LEVEL: 'info', ...options.env });
   const moduleRef = await Test.createTestingModule({
     imports: [
-      AppModule.forRoot(
-        env,
-        options.logDestination ? { logDestination: options.logDestination } : {},
-      ),
+      AppModule.forRoot(env, { logDestination: options.logDestination ?? sharedLogs.destination }),
       ...(options.fixtures ?? []),
     ],
   }).compile();

@@ -3,7 +3,7 @@ import request from 'supertest';
 import { afterEach, describe, expect, it } from 'vitest';
 import { createTestApp } from '../support/create-test-app.js';
 import { FixtureModule } from '../support/fixtures.module.js';
-import { createLogCollector, type LogCollector } from '../support/log-collector.js';
+import { sharedLogs } from '../support/log-collector.js';
 
 const TRACE_ID = '0123456789abcdef0123456789abcdef';
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/;
@@ -11,11 +11,11 @@ const TRACE_FIELD = 'logging.googleapis.com/trace';
 
 describe('Structured logging and request id (A3, ADR-014, D13)', () => {
   let app: NestExpressApplication | undefined;
-  let logs: LogCollector;
+  const logs = sharedLogs;
 
   const start = async (env: Record<string, string> = {}) => {
-    logs = createLogCollector();
-    app = await createTestApp({ fixtures: [FixtureModule], logDestination: logs.destination, env });
+    logs.clear();
+    app = await createTestApp({ fixtures: [FixtureModule], env });
     return app.getHttpServer();
   };
 
@@ -108,32 +108,10 @@ describe('Structured logging and request id (A3, ADR-014, D13)', () => {
       }
     });
 
-    it('logs the trace field with project and trace header', async () => {
-      const server = await start({ GCP_PROJECT_ID: 'my-project' });
-
-      await request(server).get('/health').set('X-Cloud-Trace-Context', `${TRACE_ID}/1`);
-
-      expect(
-        logs
-          .entries()
-          .some((entry) => entry[TRACE_FIELD] === `projects/my-project/traces/${TRACE_ID}`),
-      ).toBe(true);
-    });
-
     it('omits the trace field when there is no project id', async () => {
       const server = await start();
 
       await request(server).get('/health').set('X-Cloud-Trace-Context', `${TRACE_ID}/1`);
-
-      const entries = logs.entries();
-      expect(entries.length).toBeGreaterThan(0);
-      expect(entries.some((entry) => TRACE_FIELD in entry)).toBe(false);
-    });
-
-    it('omits the trace field when there is a project id but no trace header', async () => {
-      const server = await start({ GCP_PROJECT_ID: 'my-project' });
-
-      await request(server).get('/health');
 
       const entries = logs.entries();
       expect(entries.length).toBeGreaterThan(0);

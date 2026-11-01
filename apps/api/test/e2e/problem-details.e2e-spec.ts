@@ -4,17 +4,17 @@ import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import { problemOf } from '../support/problem.js';
 import { createTestApp } from '../support/create-test-app.js';
 import { FixtureModule } from '../support/fixtures.module.js';
-import { createLogCollector, type LogCollector } from '../support/log-collector.js';
+import { sharedLogs } from '../support/log-collector.js';
 
 const PROBLEM_JSON = /^application\/problem\+json/;
 
 describe('Problem Details error responses (A5, ADR-013, ADR-014)', () => {
   let app: NestExpressApplication;
-  let logs: LogCollector;
+  const logs = sharedLogs;
 
   beforeEach(async () => {
-    logs = createLogCollector();
-    app = await createTestApp({ fixtures: [FixtureModule], logDestination: logs.destination });
+    logs.clear();
+    app = await createTestApp({ fixtures: [FixtureModule] });
   });
 
   afterEach(async () => {
