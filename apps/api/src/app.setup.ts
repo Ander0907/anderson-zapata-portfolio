@@ -16,7 +16,7 @@ const JSON_BODY_LIMIT = '16kb';
 /**
  * Makes `req.ip`, the throttler's tracker, the entry added by our proxy, not one the client chose.
  *
- * Whether one hop is right behind Cloudflare is pending validation in `ci/deploy-api` (ADR-011).
+ * Whether one hop is right behind Cloudflare is still pending validation (ADR-011).
  */
 const TRUSTED_PROXY_HOPS = 1;
 
@@ -38,7 +38,8 @@ export const NEST_APP_OPTIONS: NestApplicationOptions = {
  * Allows credentialed browser calls from the listed origins, for a cross-origin deployment.
  *
  * With no origins, CORS stays off and no `Access-Control-*` header is sent: the planned deployment
- * is same-origin behind Cloudflare, and the list exists for its plan B (ADR-011).
+ * is same-origin behind Cloudflare (ADR-011), and the list exists for its plan B (development
+ * manual, section 7.5).
  *
  * @param app - Application being configured.
  * @param origins - Exact allowed origins; empty to keep CORS off.

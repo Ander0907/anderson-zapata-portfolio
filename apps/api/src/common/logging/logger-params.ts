@@ -7,7 +7,8 @@ import type { Env } from '../../config/env.js';
 /**
  * Injection token of the pino-http middleware.
  *
- * `configureApp` mounts it ahead of everything that can reject.
+ * `configureApp` mounts it first, ahead of every middleware that can reject; Node's own rejections
+ * never reach it.
  */
 export const REQUEST_LOGGER = Symbol('REQUEST_LOGGER');
 
@@ -17,7 +18,8 @@ const TRACE_FIELD = 'logging.googleapis.com/trace';
 /**
  * Personal fields of the contact form, masked in the logs (ADR-014).
  *
- * Pino paths are exact, so these cover top-level keys of a log entry only, not nested ones.
+ * Paths without wildcards match exactly, so these cover top-level keys of a log entry only, not
+ * nested ones.
  */
 const REDACTED_PATHS = ['name', 'email', 'message'];
 

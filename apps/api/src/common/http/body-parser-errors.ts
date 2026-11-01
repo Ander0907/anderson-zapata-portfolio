@@ -5,7 +5,7 @@ import { ERROR_CODES } from '@portfolio/shared/errors';
 /**
  * Replaces a body parser error, so a rejected request can be answered and logged safely.
  *
- * Keeps nothing of the parser error: its message and `body` can quote what the client sent.
+ * Keeps only its status: its message and `body` can quote what the client sent.
  */
 export class BodyRejectedException extends HttpException {
   /**

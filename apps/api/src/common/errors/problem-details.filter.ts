@@ -58,7 +58,8 @@ function codeOf(exception: unknown, status: number): ErrorCode {
 }
 
 /**
- * Tells server failures from client errors: only the former hide their cause behind a generic text.
+ * Tells server failures from client errors: only the former get the generic `detail`, and client
+ * errors log an ERROR only after the headers were sent.
  *
  * @param status - Status of the response.
  * @returns Whether the status is 500 or above.
@@ -110,7 +111,7 @@ export class ProblemDetailsFilter implements ExceptionFilter {
   constructor(private readonly adapterHost: HttpAdapterHost) {}
 
   /**
-   * Logs a failed request and answers it with a problem document.
+   * Logs the failure when the access log is not enough, and answers with a problem document.
    *
    * Once the headers are sent, the status and the body can no longer change, so the response is
    * only ended and the client gets no problem document.
@@ -140,7 +141,8 @@ export class ProblemDetailsFilter implements ExceptionFilter {
    * Records the failures that the access log of pino-http would not explain by itself.
    *
    * Server errors and errors after the headers were sent log the exception as an ERROR. Rejected
-   * bodies log one WARNING with only the status (ADR-014). Other client errors log nothing here.
+   * bodies log a WARNING with the status and nothing from the body or the parser error (ADR-014).
+   * Other client errors log nothing here.
    *
    * @param exception - Whatever was thrown.
    * @param status - Status of the response, or the one it would have had if headers were sent.
