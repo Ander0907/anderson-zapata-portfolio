@@ -40,3 +40,7 @@ export function createLogCollector(): LogCollector {
  * this destination and clears it in beforeEach. Vitest isolates modules per spec file.
  */
 export const sharedLogs: LogCollector = createLogCollector();
+
+/** Request id the logger attached to an entry, if any. */
+export const requestIdOf = (entry: LogEntry): unknown =>
+  (entry.req as { id?: unknown } | undefined)?.id;

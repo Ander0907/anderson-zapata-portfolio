@@ -3,10 +3,9 @@ import request from 'supertest';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import { createTestApp, type TestAppOptions } from '../support/create-test-app.js';
 import { FixtureModule } from '../support/fixtures.module.js';
-import { type LogEntry, sharedLogs } from '../support/log-collector.js';
+import { type LogEntry, requestIdOf, sharedLogs } from '../support/log-collector.js';
 
 const SECRET = 'secret-query-marker-991';
-const requestIdOf = (entry: LogEntry): unknown => (entry.req as { id?: unknown } | undefined)?.id;
 const statusOf = (entry: LogEntry): unknown =>
   (entry.res as { statusCode?: number } | undefined)?.statusCode ?? entry.status;
 

@@ -3,9 +3,8 @@ import request from 'supertest';
 import { afterAll, beforeAll, beforeEach, describe, expect, it } from 'vitest';
 import { createTestApp } from '../support/create-test-app.js';
 import { FixtureModule } from '../support/fixtures.module.js';
-import { type LogEntry, sharedLogs } from '../support/log-collector.js';
+import { type LogEntry, requestIdOf, sharedLogs } from '../support/log-collector.js';
 
-const requestIdOf = (entry: LogEntry): unknown => (entry.req as { id?: unknown } | undefined)?.id;
 const entriesOf = (id: string): LogEntry[] =>
   sharedLogs.entries().filter((entry) => requestIdOf(entry) === id);
 

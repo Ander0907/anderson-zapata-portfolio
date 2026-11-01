@@ -3,9 +3,7 @@ import request from 'supertest';
 import { afterAll, beforeAll, beforeEach, describe, expect, it } from 'vitest';
 import { createTestApp } from '../support/create-test-app.js';
 import { FixtureModule } from '../support/fixtures.module.js';
-import { type LogEntry, sharedLogs } from '../support/log-collector.js';
-
-const requestIdOf = (entry: LogEntry): unknown => (entry.req as { id?: unknown } | undefined)?.id;
+import { requestIdOf, sharedLogs } from '../support/log-collector.js';
 
 // configureApp promises the request logger runs before CORS answers a preflight.
 describe('Preflight requests are logged and carry a request id (B2, A3, ADR-014)', () => {
