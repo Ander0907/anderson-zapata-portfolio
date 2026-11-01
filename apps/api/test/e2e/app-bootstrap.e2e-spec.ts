@@ -3,12 +3,15 @@ import { Test } from '@nestjs/testing';
 import request from 'supertest';
 import { afterAll, beforeAll, describe, it } from 'vitest';
 import { AppModule } from '../../src/app.module.js';
+import { parseEnv } from '../../src/config/env.js';
 
 describe('Application bootstrap (manual section 12, row 0)', () => {
   let app: INestApplication<Parameters<typeof request>[0]> | undefined;
 
   beforeAll(async () => {
-    const moduleRef = await Test.createTestingModule({ imports: [AppModule] }).compile();
+    const moduleRef = await Test.createTestingModule({
+      imports: [AppModule.forRoot(parseEnv({ NODE_ENV: 'test' }))],
+    }).compile();
     app = moduleRef.createNestApplication();
     await app.init();
   });
