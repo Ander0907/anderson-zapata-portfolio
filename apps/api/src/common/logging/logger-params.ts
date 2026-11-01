@@ -16,6 +16,13 @@ const REDACTED_PATHS = [
   'message',
 ];
 
+/** Pino levels whose uppercase name is not a Cloud Logging severity. */
+const SEVERITY_OVERRIDES: Partial<Record<string, string>> = {
+  trace: 'DEBUG',
+  warn: 'WARNING',
+  fatal: 'CRITICAL',
+};
+
 function traceFieldOf(req: IncomingMessage, projectId: string | undefined): object {
   const traceId = traceIdOf(req);
   return projectId && traceId ? { [TRACE_FIELD]: `projects/${projectId}/traces/${traceId}` } : {};
@@ -24,7 +31,9 @@ function traceFieldOf(req: IncomingMessage, projectId: string | undefined): obje
 export function buildLoggerParams(env: Env, destination?: DestinationStream): Params {
   const options: Options = {
     level: env.LOG_LEVEL,
-    formatters: { level: (label) => ({ severity: label.toUpperCase() }) },
+    formatters: {
+      level: (label) => ({ severity: SEVERITY_OVERRIDES[label] ?? label.toUpperCase() }),
+    },
     redact: REDACTED_PATHS,
     customProps: (req) => traceFieldOf(req, env.GCP_PROJECT_ID),
   };
