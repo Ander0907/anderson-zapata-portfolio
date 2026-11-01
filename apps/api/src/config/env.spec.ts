@@ -15,8 +15,12 @@ describe('Environment validation (A1, ADR-009, D2)', () => {
     vi.unstubAllEnvs();
   });
 
-  it('applies the documented defaults for an empty environment', () => {
-    expect(parseEnv({})).toEqual({
+  it('requires NODE_ENV so the environment fails closed (D16)', () => {
+    expect(messageOf(() => parseEnv({}))).toContain('NODE_ENV');
+  });
+
+  it('applies the documented defaults for everything but NODE_ENV', () => {
+    expect(parseEnv({ NODE_ENV: 'development' })).toEqual({
       NODE_ENV: 'development',
       PORT: 8080,
       LOG_LEVEL: 'info',
@@ -27,7 +31,12 @@ describe('Environment validation (A1, ADR-009, D2)', () => {
   });
 
   it('coerces numeric variables from strings', () => {
-    const env = parseEnv({ PORT: '3000', RATE_LIMIT_TTL_SECONDS: '30', RATE_LIMIT_MAX: '5' });
+    const env = parseEnv({
+      NODE_ENV: 'test',
+      PORT: '3000',
+      RATE_LIMIT_TTL_SECONDS: '30',
+      RATE_LIMIT_MAX: '5',
+    });
 
     expect(env.PORT).toBe(3000);
     expect(env.RATE_LIMIT_TTL_SECONDS).toBe(30);
@@ -35,11 +44,25 @@ describe('Environment validation (A1, ADR-009, D2)', () => {
   });
 
   it('keeps GCP_PROJECT_ID when provided', () => {
-    expect(parseEnv({ GCP_PROJECT_ID: 'my-project' }).GCP_PROJECT_ID).toBe('my-project');
+    expect(parseEnv({ NODE_ENV: 'test', GCP_PROJECT_ID: 'my-project' }).GCP_PROJECT_ID).toBe(
+      'my-project',
+    );
   });
 
   it('splits CORS_ALLOWED_ORIGINS into a list of exact origins', () => {
-    const env = parseEnv({ CORS_ALLOWED_ORIGINS: 'https://a.example,https://b.example' });
+    const env = parseEnv({
+      NODE_ENV: 'test',
+      CORS_ALLOWED_ORIGINS: 'https://a.example,https://b.example',
+    });
+
+    expect(env.CORS_ALLOWED_ORIGINS).toEqual(['https://a.example', 'https://b.example']);
+  });
+
+  it('trims spaces around the CORS_ALLOWED_ORIGINS entries', () => {
+    const env = parseEnv({
+      NODE_ENV: 'test',
+      CORS_ALLOWED_ORIGINS: ' https://a.example, https://b.example ,  ',
+    });
 
     expect(env.CORS_ALLOWED_ORIGINS).toEqual(['https://a.example', 'https://b.example']);
   });
@@ -55,27 +78,28 @@ describe('Environment validation (A1, ADR-009, D2)', () => {
     ['PORT', '65536'],
     ['LOG_LEVEL', 'verbose'],
   ])('rejects %s=%s', (name, value) => {
-    expect(() => parseEnv({ [name]: value })).toThrow();
+    expect(() => parseEnv({ NODE_ENV: 'test', [name]: value })).toThrow(new RegExp(name));
   });
 
   it.each(['fatal', 'error', 'warn', 'info', 'debug', 'trace', 'silent'])(
     'accepts the pino level %s',
     (level) => {
-      expect(parseEnv({ LOG_LEVEL: level }).LOG_LEVEL).toBe(level);
+      expect(parseEnv({ NODE_ENV: 'test', LOG_LEVEL: level }).LOG_LEVEL).toBe(level);
     },
   );
 
   it('names the offending variable in the error', () => {
-    expect(messageOf(() => parseEnv({ PORT: 'abc' }))).toContain('PORT');
+    expect(messageOf(() => parseEnv({ NODE_ENV: 'test', PORT: 'abc' }))).toContain('PORT');
   });
 
   it('never echoes the offending value in the error', () => {
-    expect(messageOf(() => parseEnv({ LOG_LEVEL: 'super-secret-value-123' }))).not.toContain(
-      'super-secret-value-123',
-    );
+    expect(
+      messageOf(() => parseEnv({ NODE_ENV: 'test', LOG_LEVEL: 'super-secret-value-123' })),
+    ).not.toContain('super-secret-value-123');
   });
 
   it('fails fast when the process environment is invalid', () => {
+    vi.stubEnv('NODE_ENV', 'test');
     vi.stubEnv('PORT', 'not-a-port');
 
     expect(() => loadEnv()).toThrow(/PORT/);
