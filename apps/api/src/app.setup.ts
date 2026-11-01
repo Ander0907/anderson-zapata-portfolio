@@ -12,6 +12,7 @@ import type { Env } from './config/env.js';
 import { buildOpenApiDocument } from './openapi/openapi.js';
 
 const JSON_BODY_LIMIT = '16kb';
+/** Makes `req.ip`, the throttler's tracker, the entry added by our proxy, not one the client chose. */
 const TRUSTED_PROXY_HOPS = 1;
 
 export const NEST_APP_OPTIONS: NestApplicationOptions = {

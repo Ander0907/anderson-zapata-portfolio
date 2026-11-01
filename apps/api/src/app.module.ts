@@ -1,12 +1,11 @@
 import { type DynamicModule, Module, StandardSchemaValidationPipe } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { APP_FILTER, APP_GUARD, APP_PIPE } from '@nestjs/core';
-import { seconds, ThrottlerModule } from '@nestjs/throttler';
+import { seconds, ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
 import { LoggerModule } from 'nestjs-pino';
 import type { DestinationStream } from 'pino';
 import { ProblemDetailsFilter } from './common/errors/problem-details.filter.js';
 import { toValidationFailedException } from './common/errors/validation-failed.exception.js';
-import { ClientIpThrottlerGuard } from './common/http/client-ip-throttler.guard.js';
 import { buildLoggerParams } from './common/logging/logger-params.js';
 import type { Env } from './config/env.js';
 import { HealthModule } from './modules/health/health.module.js';
@@ -34,7 +33,7 @@ export class AppModule {
       ],
       providers: [
         { provide: APP_FILTER, useClass: ProblemDetailsFilter },
-        { provide: APP_GUARD, useClass: ClientIpThrottlerGuard },
+        { provide: APP_GUARD, useClass: ThrottlerGuard },
         {
           provide: APP_PIPE,
           useValue: new StandardSchemaValidationPipe({
