@@ -18,7 +18,7 @@
 - La configuración del entorno también se valida con Zod al arrancar (`ConfigModule` con `validationSchema`).
 - No se usa `class-validator`.
 
-**Riesgo y control:** la generación de OpenAPI con Standard Schema (`@nestjs/swagger` 12 con `standardSchemaConverter`) solo se vio en un espejo de las notas de versión. Una prueba en `feat/api-foundation` comprueba que `openapi.json` incluye el cuerpo del formulario de contacto; si falla, se reevalúa.
+**Riesgo y control:** la generación de OpenAPI con Standard Schema (`@nestjs/swagger` 12 con `standardSchemaConverter`) solo se vio en un espejo de las notas de versión. Una prueba en `feature/api-foundation` comprueba que `openapi.json` incluye el cuerpo del formulario de contacto; si falla, se reevalúa.
 
 ## Alternativas consideradas
 

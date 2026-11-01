@@ -8,7 +8,7 @@ Si el manual o un ADR contradicen `docs/architecture/backend-research-definition
 
 En este repositorio, **el manual prevalece sobre el `CLAUDE.md` global del usuario** (decisión de Anderson, 2026-10-24). En concreto:
 
-- Prefijos de rama: `feat/`, `fix/`, `docs/`, `chore/`, `ci/`, `refactor/` (no `feature/`). Se crean desde `development` actualizada y su PR va a `development` («to DEV: …»). Las promociones `development` → `release` (UAT) → `main` (PDN) solo se abren cuando Anderson lo pide o lo aprueba.
+- Prefijos de rama: `feature/`, `fix/`, `docs/`, `chore/`, `ci/`, `refactor/` (no `feat/`; decisión de Anderson, 2026-11-01). El tipo de commit sigue siendo `feat:`. Se crean desde `development` actualizada y su PR va a `development` («to DEV: …»). Las promociones `development` → `release` (UAT) → `main` (PDN) solo se abren cuando Anderson lo pide o lo aprueba.
 - Stack: TypeScript con NestJS 12, Next.js, Prisma 7.10.1, PostgreSQL, Zod 4 y Vitest 5. El análisis estático y el formato son los del monorepo (linter, comprobación de tipos y formateador), no PHPStan ni Pint.
 - Nombres de ficheros de `docs/` en inglés kebab-case para los documentos nuevos.
 

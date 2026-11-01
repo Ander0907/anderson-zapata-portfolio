@@ -44,7 +44,7 @@ Portafolio personal de Anderson Zapata. El sitio público es estático; la API (
 
 4. Comprueba que el entorno funciona ejecutando la calidad completa (ver la tabla siguiente).
 
-La API todavía no se puede arrancar: el punto de entrada (`main.ts`) y los scripts `dev` y `start` llegan en la rama `feat/api-foundation`.
+La API todavía no se puede arrancar: el punto de entrada (`main.ts`) y los scripts `dev` y `start` llegan en la rama `feature/api-foundation`.
 
 > Si cambias un `tsconfig`, borra `node_modules/.vitest-cache` antes de volver a ejecutar las pruebas: la caché de Vitest no se invalida sola con esos cambios (ver [ADR-010](docs/adr/adr-010-esm-and-nodenext.md)).
 
@@ -93,7 +93,7 @@ Los commits siguen Conventional Commits (`feat:`, `fix:`, `test:`, `refactor:`, 
 
 ## Flujo de ramas
 
-El flujo es **DEV → UAT → PDN**: `development` (DEV), `release` (UAT) y `main` (PDN). Las ramas de trabajo (`feat/`, `fix/`, `docs/`, `chore/`, `ci/`, `refactor/`) se crean desde `development` y su pull request va a `development`. Las promociones a `release` y `main` las abre Anderson o se abren con su aprobación. Detalle en [ADR-020](docs/adr/adr-020-branch-flow-dev-uat-pdn.md) y en el [manual §6](docs/process/06-manual-de-desarrollo.md).
+El flujo es **DEV → UAT → PDN**: `development` (DEV), `release` (UAT) y `main` (PDN). Las ramas de trabajo (`feature/`, `fix/`, `docs/`, `chore/`, `ci/`, `refactor/`) se crean desde `development` y su pull request va a `development`. Las promociones a `release` y `main` las abre Anderson o se abren con su aprobación. Detalle en [ADR-020](docs/adr/adr-020-branch-flow-dev-uat-pdn.md) y en el [manual §6](docs/process/06-manual-de-desarrollo.md).
 
 ## Documentación
 

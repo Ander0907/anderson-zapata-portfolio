@@ -47,7 +47,7 @@ Diagramas: `img/modelo-relacional-elegido.png` (el elegido) e `img/modelo-docume
 
 El modelo relacional de la fase de diseño pasó de 13 a 12 tablas: sin contraseñas, no hace falta la tabla `admin_user`. La API acepta un único inicio de sesión de GitHub, indicado por una variable de entorno (`ADMIN_GITHUB_LOGIN`).
 
-**Actualización del 2026-10-24 (Fase 0 del backend):** al contrastar el modelo con los requisitos y el diseño, pasa a **15 tablas**: `profile`, `profile_highlight`, `project`, `project_decision`, `project_flow_step`, `technology`, `project_technology`, `experience`, `experience_item`, `experience_technology`, `skill_group`, `skill`, `reference`, `contact_message` y `publish_event`. Los campos, restricciones e índices están en `backend-research-definition.md`, sección 4, que es la especificación. El diagrama `img/modelo-relacional-elegido.png` se rehace en la rama `feat/db-schema`; hasta entonces muestra la versión de 12 tablas.
+**Actualización del 2026-10-24 (Fase 0 del backend):** al contrastar el modelo con los requisitos y el diseño, pasa a **15 tablas**: `profile`, `profile_highlight`, `project`, `project_decision`, `project_flow_step`, `technology`, `project_technology`, `experience`, `experience_item`, `experience_technology`, `skill_group`, `skill`, `reference`, `contact_message` y `publish_event`. Los campos, restricciones e índices están en `backend-research-definition.md`, sección 4, que es la especificación. El diagrama `img/modelo-relacional-elegido.png` se rehace en la rama `feature/db-schema`; hasta entonces muestra la versión de 12 tablas.
 
 ## 4. Flujo de publicación
 
@@ -122,7 +122,7 @@ La numeración de los ADR es independiente de la tabla de decisiones de la secci
 - Confirmar en Cloudflare el precio exacto del `.dev` y que el nombre esté disponible.
 - Revisar la política de cookies y datos de Turnstile (RNF-14) y los términos de Sentry.
 - Elegir el método de despliegue en Cloudflare (Pages o Workers con activos estáticos).
-- Actualizar el diagrama relacional a 15 tablas (en la rama `feat/db-schema`).
+- Actualizar el diagrama relacional a 15 tablas (en la rama `feature/db-schema`).
 - Del contenido: enlaces del proyecto del SENA, datos de las tres referencias, color de error en tema oscuro.
 
 ## 10. Fuentes

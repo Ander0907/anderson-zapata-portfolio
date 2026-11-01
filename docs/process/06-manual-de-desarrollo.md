@@ -69,7 +69,7 @@ Las skills son instrucciones que un agente carga y sigue: una skill maliciosa o 
 ## 6. Ramas, árboles de trabajo y fusión
 
 - **Flujo de ramas DEV → UAT → PDN** (decisión de Anderson, 2026-10-24): `development` es integración (DEV), `release` es aceptación (UAT) y `main` es producción (PDN).
-  - **Una rama por funcionalidad**, creada desde `development` actualizada: `feat/<ámbito>-<descripción-corta>` (también `fix/`, `docs/`, `chore/`, `ci/`, `refactor/`). Su PR va a `development` con el título «to DEV: <mensaje convencional>».
+  - **Una rama por funcionalidad**, creada desde `development` actualizada: `feature/<ámbito>-<descripción-corta>` (también `fix/`, `docs/`, `chore/`, `ci/`, `refactor/`). Su PR va a `development` con el título «to DEV: <mensaje convencional>».
   - **Promociones:** PR `development` → `release` («to UAT: …») y `release` → `main` («to PDN: …»). Las abre el orquestador **solo cuando Anderson lo pide o lo aprueba**, porque `main` es lo que se despliega.
   - Nunca se trabaja ni se hace push directo a `development`, `release` ni `main`.
 - **Cada agente trabaja en su propio árbol de trabajo** (`git worktree add ../wt-<rama> -b <rama> origin/development`), de modo que dos agentes nunca comparten directorio. El agente solo toca los ficheros que se le asignaron.
@@ -201,15 +201,15 @@ Fuente: `docs/architecture/backend-research-definition.md`, sección 5, con un c
 | — | `chore/dev-process` | — | Agentes, skills, configuración de Claude Code, `CLAUDE.md` y este manual actualizado |
 | — | `docs/adr-initial` | `chore/dev-process` | Los 20 ADR (001–020). En paralelo con la 0: solo toca `docs/adr/` |
 | 0 | `chore/monorepo-skeleton` | `chore/dev-process` | pnpm workspaces, ESM y NodeNext, Node 22, versiones exactas, `apps/api` (NestJS 12), `packages/shared` (exports por subruta, sin barrel), linters con las restricciones de importación, Vitest 5 con tres proyectos (unit, integration, e2e) y umbrales por carpeta, una prueba que demuestra la inyección por tipo (sin `unplugin-swc`: Vite 8 emite los metadatos, ADR-010), commitlint, `docker compose` con PostgreSQL, CI con service container y README |
-| 1 | `feat/api-foundation` | 0 | Configuración validada con Zod, `/health` sin base de datos, `nestjs-pino`, validación con Standard Schema, errores RFC 9457 (400/422), CORS, `helmet`, límite del cuerpo, límite de peticiones con `trust proxy` y `req.ip`, OpenAPI con prueba del contrato, apagado ordenado |
-| 2 | `feat/db-schema` | 1 | Prisma 7.10.1, las **15 tablas** con restricciones e índices, migración inicial, datos iniciales, las dos URL de Neon, diagrama relacional actualizado y pruebas de integración con PostgreSQL |
-| 3 | `feat/content-read` | 2 | Lectura del contenido **publicado** para el build; prueba de número de consultas si es viable |
-| 4 | `feat/contact-messages` | 2 | Esquema compartido, campo trampa, Turnstile y Resend tras puertos, persistir y luego notificar, `notification_status` |
-| 5 | `feat/admin-auth` | 2 | Adaptador OAuth propio con PKCE, lista de permitidos (login e id), sesión HMAC de 8 h, guard global cerrado por defecto, guard de origen y cabecera obligatoria, `logout` y `me`. Se desarrolla y prueba en local con el modelo de origen único (ADR-011); el reenvío por Cloudflare se valida en `ci/deploy-api` |
-| 6a | `feat/admin-technologies` | 5 | Catálogo que usan las demás |
-| 6b / 6c / 6d | `feat/admin-projects`, `feat/admin-experience`, `feat/admin-skills` | 6a | En paralelo |
-| 6e / 6f / 7 | `feat/admin-references`, `feat/admin-profile`, `feat/contact-inbox` | 5 | En paralelo. La bandeja (RF-14) es paginada e incluye «reenviar aviso» |
-| 8 | `feat/publish-workflow` | 5 | `repository_dispatch` tras un puerto y antirrebote con `publish_event` |
+| 1 | `feature/api-foundation` | 0 | Configuración validada con Zod, `/health` sin base de datos, `nestjs-pino`, validación con Standard Schema, errores RFC 9457 (400/422), CORS, `helmet`, límite del cuerpo, límite de peticiones con `trust proxy` y `req.ip`, OpenAPI con prueba del contrato, apagado ordenado |
+| 2 | `feature/db-schema` | 1 | Prisma 7.10.1, las **15 tablas** con restricciones e índices, migración inicial, datos iniciales, las dos URL de Neon, diagrama relacional actualizado y pruebas de integración con PostgreSQL |
+| 3 | `feature/content-read` | 2 | Lectura del contenido **publicado** para el build; prueba de número de consultas si es viable |
+| 4 | `feature/contact-messages` | 2 | Esquema compartido, campo trampa, Turnstile y Resend tras puertos, persistir y luego notificar, `notification_status` |
+| 5 | `feature/admin-auth` | 2 | Adaptador OAuth propio con PKCE, lista de permitidos (login e id), sesión HMAC de 8 h, guard global cerrado por defecto, guard de origen y cabecera obligatoria, `logout` y `me`. Se desarrolla y prueba en local con el modelo de origen único (ADR-011); el reenvío por Cloudflare se valida en `ci/deploy-api` |
+| 6a | `feature/admin-technologies` | 5 | Catálogo que usan las demás |
+| 6b / 6c / 6d | `feature/admin-projects`, `feature/admin-experience`, `feature/admin-skills` | 6a | En paralelo |
+| 6e / 6f / 7 | `feature/admin-references`, `feature/admin-profile`, `feature/contact-inbox` | 5 | En paralelo. La bandeja (RF-14) es paginada e incluye «reenviar aviso» |
+| 8 | `feature/publish-workflow` | 5 | `repository_dispatch` tras un puerto y antirrebote con `publish_event` |
 | 9 | `ci/deploy-api` | Pruebas locales completas y decisión de Anderson | Dockerfile, Cloud Run con Workload Identity Federation, Secret Manager, migraciones como paso previo, prueba del dominio único con Cloudflare y de la IP real |
 | 10 | `ci/db-backup` | 2 y 9 | Volcado semanal cifrado a Cloud Storage y prueba de restauración |
 

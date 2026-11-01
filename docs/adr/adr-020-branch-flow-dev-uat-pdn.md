@@ -11,7 +11,8 @@
 ## Decisión
 
 - **Tres ramas largas:** `development` (DEV, integración), `release` (UAT, aceptación) y `main` (PDN, producción).
-- **Ramas de funcionalidad** con prefijos `feat/`, `fix/`, `docs/`, `chore/`, `ci/` y `refactor/`, creadas desde `development`. Su PR va a `development` con el título «to DEV: <mensaje convencional>».
+- **Ramas de funcionalidad** con prefijos `feature/`, `fix/`, `docs/`, `chore/`, `ci/` y `refactor/`, creadas desde `development`. Su PR va a `development` con el título «to DEV: <mensaje convencional>».
+  - **Actualización del 2026-11-01 (decisión de Anderson):** el prefijo de las ramas de funcionalidad es `feature/`, no `feat/`. El tipo de commit convencional sigue siendo `feat:`.
 - **Promociones:** `development` → `release` («to UAT: …») y `release` → `main` («to PDN: …»). Se abren **solo cuando Anderson lo pide o lo aprueba**.
 - **Fusión con merge commit, nunca squash:** el historial rojo → verde es la evidencia de TDD.
 - **Entornos:** siguen siendo solo local y producción (sin staging). `release` es una rama de aceptación, no un entorno. **Solo `main` despliega.**
