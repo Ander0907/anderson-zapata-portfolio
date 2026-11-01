@@ -8,7 +8,12 @@ const envSchema = z.object({
   CORS_ALLOWED_ORIGINS: z
     .string()
     .default('')
-    .transform((origins) => origins.split(',').filter((origin) => origin.length > 0)),
+    .transform((origins) =>
+      origins
+        .split(',')
+        .map((origin) => origin.trim())
+        .filter((origin) => origin.length > 0),
+    ),
   RATE_LIMIT_TTL_SECONDS: z.coerce.number().int().positive().default(60),
   RATE_LIMIT_MAX: z.coerce.number().int().positive().default(100),
 });
