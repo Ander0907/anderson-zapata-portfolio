@@ -50,14 +50,12 @@ export function configureApp(app: NestExpressApplication, env: Env): void {
   serveDocsOutsideProduction(app, env);
 }
 
-// Inert seam: the options argument is wired by the GREEN step.
 export async function createApp(
   env: Env,
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  _options: { logDestination?: DestinationStream } = {},
+  options: { logDestination?: DestinationStream } = {},
 ): Promise<NestExpressApplication> {
   const app = await NestFactory.create<NestExpressApplication>(
-    AppModule.forRoot(env),
+    AppModule.forRoot(env, options),
     NEST_APP_OPTIONS,
   );
   configureApp(app, env);
