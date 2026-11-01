@@ -49,4 +49,18 @@ describe('Errors after the response started (A5, ADR-013, ADR-014)', () => {
     expect(errors).toHaveLength(1);
     expect(JSON.stringify(errors[0])).toContain('after-write-secret');
   });
+
+  it('logs a client error raised after headers were sent, once, and ends the response', async () => {
+    const response = await request(app.getHttpServer())
+      .get('/v1/fixtures/write-then-forbid')
+      .set('X-Request-Id', 'client-id-42');
+    await new Promise((resolve) => setTimeout(resolve, 50));
+
+    expect(response.text).toContain('partial-body');
+    expect(response.text).not.toContain('after-write-forbidden');
+    expect(uncaught).toEqual([]);
+    const errors = sharedLogs.entries().filter((entry) => entry.severity === 'ERROR');
+    expect(errors).toHaveLength(1);
+    expect((errors[0]?.req as { id?: string } | undefined)?.id).toBe('client-id-42');
+  });
 });

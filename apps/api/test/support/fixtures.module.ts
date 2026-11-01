@@ -85,6 +85,12 @@ export class FixtureController {
     throw new Error('after-write-secret');
   }
 
+  @Get('write-then-forbid')
+  writeThenForbid(@Res() res: { write(chunk: string): void }): never {
+    res.write('partial-body');
+    throw new ForbiddenException('after-write-forbidden');
+  }
+
   @Get('teapot')
   teapot(): never {
     throw new HttpException('short and stout', 418);
