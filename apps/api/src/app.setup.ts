@@ -14,6 +14,7 @@ export function configureApp(app: NestExpressApplication, env: Env): void {
   app.useLogger(app.get(Logger));
   app.enableVersioning({ type: VersioningType.URI, defaultVersion: '1' });
   app.enableShutdownHooks();
+  app.set('trust proxy', 1);
   app.use(assignRequestId);
   app.use(helmet());
   if (env.CORS_ALLOWED_ORIGINS.length > 0) {
