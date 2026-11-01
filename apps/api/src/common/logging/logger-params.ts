@@ -11,12 +11,22 @@ const TRACE_FIELD = 'logging.googleapis.com/trace';
 
 const REDACTED_PATHS = ['name', 'email', 'message'];
 
+const MAX_LOGGED_URL_LENGTH = 2048;
+
+/** Drops the query first, so that a cut URL can never keep part of it. */
+function loggedUrl(url: string): { url: string; urlTruncated?: true } {
+  const [path = ''] = url.split('?');
+  return path.length > MAX_LOGGED_URL_LENGTH
+    ? { url: path.slice(0, MAX_LOGGED_URL_LENGTH), urlTruncated: true }
+    : { url: path };
+}
+
 /** Allowlists: headers and query strings carry secrets and personal data, so none are logged. */
 const REQUEST_SERIALIZERS = {
   req: ({ id, method, url }: { id: unknown; method: string; url: string }) => ({
     id,
     method,
-    url: url.split('?')[0],
+    ...loggedUrl(url),
   }),
   res: ({ statusCode }: { statusCode: number | null }) => ({ statusCode }),
 };
