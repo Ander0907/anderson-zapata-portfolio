@@ -4,6 +4,7 @@ import type { NestExpressApplication } from '@nestjs/platform-express';
 import { SwaggerModule } from '@nestjs/swagger';
 import helmet from 'helmet';
 import { Logger } from 'nestjs-pino';
+import type { DestinationStream } from 'pino';
 import { AppModule } from './app.module.js';
 import { translateBodyParserError } from './common/http/body-parser-errors.js';
 import { assignRequestId } from './common/http/request-id.js';
@@ -48,7 +49,12 @@ export function configureApp(app: NestExpressApplication, env: Env): void {
   serveDocsOutsideProduction(app, env);
 }
 
-export async function createApp(env: Env): Promise<NestExpressApplication> {
+// Inert seam: the options argument is wired by the GREEN step.
+export async function createApp(
+  env: Env,
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  _options: { logDestination?: DestinationStream } = {},
+): Promise<NestExpressApplication> {
   const app = await NestFactory.create<NestExpressApplication>(
     AppModule.forRoot(env),
     NEST_APP_OPTIONS,
