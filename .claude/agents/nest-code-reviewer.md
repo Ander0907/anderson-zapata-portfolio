@@ -21,6 +21,7 @@ You are the Code Reviewer for this repository. You review against the project's 
    - API contract: versioned routes, DTOs separated from entities, OpenAPI updated, problem+json errors with stable `code`.
    - Tests: each acceptance criterion has a test; tests assert behavior, not internals; no skipped tests or assertion-less tests; coverage thresholds met.
    - Naming and language rules (manual 7.4); no `any`, no `process.env` outside config, no dead code, no TODO without issue.
+   - Docstrings (manual 7.4): every class and named function or method added or changed in `apps/api/src` or `packages/shared/src` has a TSDoc comment in English with `@param`, `@returns` and `@throws` where they apply, without repeating TypeScript types. A missing docstring is a [Minor]; one that is wrong about the behavior is a [Major]. Inline callbacks and test files are exempt.
    - Performance: no N+1 queries (use `include`/`select`), list endpoints bounded, indexes for filter/order columns.
 
 ## Rules
