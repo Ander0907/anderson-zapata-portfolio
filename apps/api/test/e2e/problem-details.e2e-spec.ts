@@ -4,7 +4,9 @@ import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import { problemOf } from '../support/problem.js';
 import { createTestApp } from '../support/create-test-app.js';
 import { FixtureModule } from '../support/fixtures.module.js';
-import { sharedLogs } from '../support/log-collector.js';
+import { type LogEntry, sharedLogs } from '../support/log-collector.js';
+
+const requestIdOf = (entry: LogEntry): unknown => (entry.req as { id?: unknown } | undefined)?.id;
 
 const PROBLEM_JSON = /^application\/problem\+json/;
 
@@ -41,8 +43,9 @@ describe('Problem Details error responses (A5, ADR-013, ADR-014)', () => {
   it('uses the Nest errorCode when it is in the catalogue', async () => {
     const response = await request(app.getHttpServer()).get('/v1/fixtures/with-error-code');
 
-    expect(response.status).toBe(409);
-    expect(problemOf(response).code).toBe('CONFLICT');
+    // The status alone would give BAD_REQUEST: the code can only come from errorCode.
+    expect(response.status).toBe(400);
+    expect(problemOf(response).code).toBe('VALIDATION_INVALID');
   });
 
   it('falls back to the status when the errorCode is not in the catalogue', async () => {
@@ -106,14 +109,11 @@ describe('Problem Details error responses (A5, ADR-013, ADR-014)', () => {
     expect(problemOf(response).traceId).toBe('client-id-42');
     const logged = logs
       .entries()
-      .filter(
-        (entry) =>
-          entry.severity === 'ERROR' &&
-          JSON.stringify(entry).includes('internal-secret-detail') &&
-          JSON.stringify(entry).includes('client-id-42'),
-      );
+      .filter((entry) => entry.severity === 'ERROR' && requestIdOf(entry) === 'client-id-42');
     expect(logged.length).toBeGreaterThan(0);
-    expect(JSON.stringify(logged[0])).toMatch(/at .*\.ts/);
+    const stack = String((logged[0]?.err as { stack?: string } | undefined)?.stack);
+    expect(stack).toContain('internal-secret-detail');
+    expect(stack).toMatch(/at .*\.ts/);
   });
 
   it('answers malformed JSON with a 400 MALFORMED_JSON problem', async () => {

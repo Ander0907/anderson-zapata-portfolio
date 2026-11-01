@@ -79,6 +79,12 @@ export class FixtureController {
     return { ok: true };
   }
 
+  @Get('write-then-throw')
+  writeThenThrow(@Res() res: { write(chunk: string): void }): never {
+    res.write('partial-body');
+    throw new Error('after-write-secret');
+  }
+
   @Get('teapot')
   teapot(): never {
     throw new HttpException('short and stout', 418);
@@ -86,7 +92,8 @@ export class FixtureController {
 
   @Get('with-error-code')
   withErrorCode(): never {
-    throw new HttpException('conflict', 409, { errorCode: 'CONFLICT' });
+    // A catalogue code different from the one the status alone would give (400 -> BAD_REQUEST).
+    throw new HttpException('invalid', 400, { errorCode: 'VALIDATION_INVALID' });
   }
 
   @Get('unknown-error-code')

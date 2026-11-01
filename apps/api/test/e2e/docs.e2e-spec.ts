@@ -84,7 +84,7 @@ describe('Swagger UI under the helmet CSP (C4, D16)', () => {
   });
 
   describe('in production', () => {
-    // These pass at once: nothing is mounted yet, so the routes are plain 404 problems.
+    // Guard: Swagger UI must stay unmounted in production, where these are plain 404 problems.
     it.each(['/docs', '/docs-json'])('answers %s with a 404 problem', async (path) => {
       const response = await request(await start('production')).get(path);
 

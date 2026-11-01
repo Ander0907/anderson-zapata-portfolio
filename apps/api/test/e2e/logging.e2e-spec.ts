@@ -3,10 +3,11 @@ import request from 'supertest';
 import { afterEach, describe, expect, it } from 'vitest';
 import { createTestApp } from '../support/create-test-app.js';
 import { FixtureModule } from '../support/fixtures.module.js';
-import { sharedLogs } from '../support/log-collector.js';
+import { type LogEntry, sharedLogs } from '../support/log-collector.js';
 
 const TRACE_ID = '0123456789abcdef0123456789abcdef';
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/;
+const requestIdOf = (entry: LogEntry): unknown => (entry.req as { id?: unknown } | undefined)?.id;
 const TRACE_FIELD = 'logging.googleapis.com/trace';
 
 describe('Structured logging and request id (A3, ADR-014, D13)', () => {
@@ -84,14 +85,22 @@ describe('Structured logging and request id (A3, ADR-014, D13)', () => {
       expect(response.headers['x-request-id']).toMatch(UUID);
     });
 
-    it('writes the request id into the log entries of that request', async () => {
+    it('writes the request id into req.id of the log entries of that request', async () => {
       const server = await start();
 
       await request(server).get('/health').set('X-Request-Id', 'client-id-42');
 
-      expect(logs.entries().some((entry) => JSON.stringify(entry).includes('client-id-42'))).toBe(
-        true,
-      );
+      expect(logs.entries().some((entry) => requestIdOf(entry) === 'client-id-42')).toBe(true);
+    });
+
+    it('writes a generated request id into req.id as well', async () => {
+      const server = await start();
+
+      const response = await request(server).get('/health');
+
+      const id = response.headers['x-request-id'];
+      expect(id).toMatch(UUID);
+      expect(logs.entries().some((entry) => requestIdOf(entry) === id)).toBe(true);
     });
   });
 
