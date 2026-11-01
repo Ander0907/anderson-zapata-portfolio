@@ -7,7 +7,7 @@ import { Logger } from 'nestjs-pino';
 import type { DestinationStream } from 'pino';
 import { AppModule } from './app.module.js';
 import { translateBodyParserError } from './common/http/body-parser-errors.js';
-import { assignRequestId } from './common/http/request-id.js';
+import { REQUEST_LOGGER } from './common/logging/logger-params.js';
 import type { Env } from './config/env.js';
 import { buildOpenApiDocument } from './openapi/openapi.js';
 
@@ -37,13 +37,16 @@ function serveDocsOutsideProduction(app: NestExpressApplication, env: Env): void
   SwaggerModule.setup('docs', app, () => buildOpenApiDocument(app));
 }
 
-/** Middleware runs in registration order: the request id comes first so every response has one. */
+/**
+ * Middleware runs in registration order. The request logger comes first so that every request has
+ * an id and a log entry, including those rejected by the body parser or the router.
+ */
 export function configureApp(app: NestExpressApplication, env: Env): void {
   app.useLogger(app.get(Logger));
   app.enableVersioning({ type: VersioningType.URI, defaultVersion: '1' });
   app.enableShutdownHooks();
   app.set('trust proxy', TRUSTED_PROXY_HOPS);
-  app.use(assignRequestId);
+  app.use(app.get(REQUEST_LOGGER));
   app.use(helmet());
   enableCorsForListedOrigins(app, env.CORS_ALLOWED_ORIGINS);
   parseJsonBodies(app);

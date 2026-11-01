@@ -17,13 +17,9 @@ function requestIdOf(req: IncomingMessage): string {
   return traceIdOf(req) ?? (CLIENT_REQUEST_ID.test(clientId) ? clientId : randomUUID());
 }
 
-/**
- * Runs before the body parser, unlike the pino-http middleware, so that requests rejected there
- * still carry a request id. pino-http keeps an existing `req.id`.
- */
-export function assignRequestId(req: IncomingMessage, res: ServerResponse, next: () => void): void {
+/** The `genReqId` of pino-http, which stores the result in `req.id`. */
+export function assignRequestId(req: IncomingMessage, res: ServerResponse): string {
   const requestId = requestIdOf(req);
-  req.id = requestId;
   res.setHeader('X-Request-Id', requestId);
-  next();
+  return requestId;
 }

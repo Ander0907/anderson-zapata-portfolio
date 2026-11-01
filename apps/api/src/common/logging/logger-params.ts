@@ -1,9 +1,11 @@
 import type { IncomingMessage } from 'node:http';
-import type { Params } from 'nestjs-pino';
-import type { DestinationStream } from 'pino';
+import { type DestinationStream, pino } from 'pino';
 import type { Options } from 'pino-http';
-import { traceIdOf } from '../http/request-id.js';
+import { assignRequestId, traceIdOf } from '../http/request-id.js';
 import type { Env } from '../../config/env.js';
+
+/** The pino-http middleware; `configureApp` mounts it ahead of everything that can reject. */
+export const REQUEST_LOGGER = Symbol('REQUEST_LOGGER');
 
 const TRACE_FIELD = 'logging.googleapis.com/trace';
 
@@ -31,15 +33,22 @@ function traceFieldOf(req: IncomingMessage, projectId: string | undefined): obje
   return projectId && traceId ? { [TRACE_FIELD]: `projects/${projectId}/traces/${traceId}` } : {};
 }
 
-export function buildLoggerParams(env: Env, destination?: DestinationStream): Params {
-  const options: Options = {
-    level: env.LOG_LEVEL,
-    formatters: {
-      level: (label) => ({ severity: SEVERITY_OVERRIDES[label] ?? label.toUpperCase() }),
+/** One pino instance, shared by the request logger and nestjs-pino's out-of-request logger. */
+export function buildRequestLoggerOptions(env: Env, destination?: DestinationStream): Options {
+  const logger = pino(
+    {
+      level: env.LOG_LEVEL,
+      formatters: {
+        level: (label) => ({ severity: SEVERITY_OVERRIDES[label] ?? label.toUpperCase() }),
+      },
+      redact: REDACTED_PATHS,
     },
-    redact: REDACTED_PATHS,
+    destination,
+  );
+  return {
+    logger,
     serializers: REQUEST_SERIALIZERS,
+    genReqId: assignRequestId,
     customProps: (req) => traceFieldOf(req, env.GCP_PROJECT_ID),
   };
-  return { pinoHttp: destination ? [options, destination] : options };
 }

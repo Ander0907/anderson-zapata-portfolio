@@ -8,9 +8,15 @@ import {
 } from '@nestjs/common';
 import { HttpAdapterHost } from '@nestjs/core';
 import { ERROR_CODES, type ErrorCode } from '@portfolio/shared/errors';
-import { PinoLogger } from 'nestjs-pino';
+import type { Logger } from 'pino';
 import { BodyRejectedException } from '../http/body-parser-errors.js';
 import { ValidationFailedException } from './validation-failed.exception.js';
+
+/** What pino-http leaves on the request. `log` also works before nestjs-pino binds its context. */
+interface LoggedRequest {
+  id: string;
+  log: Logger;
+}
 
 const GENERIC_DETAIL = 'An unexpected error occurred.';
 
@@ -51,16 +57,13 @@ const problemOf = (exception: unknown, status: number, traceId: string): object 
 /** Single exit for errors (ADR-013): RFC 9457 documents with a stable code, never internals. */
 @Catch()
 export class ProblemDetailsFilter implements ExceptionFilter {
-  constructor(
-    private readonly adapterHost: HttpAdapterHost,
-    private readonly logger: PinoLogger,
-  ) {}
+  constructor(private readonly adapterHost: HttpAdapterHost) {}
 
   catch(exception: unknown, host: ArgumentsHost): void {
     const http = host.switchToHttp();
     const { httpAdapter } = this.adapterHost;
     const status = statusOf(exception);
-    const request = http.getRequest<{ id: string }>();
+    const request = http.getRequest<LoggedRequest>();
     const response: unknown = http.getResponse();
     const headersSent = Boolean(httpAdapter.isHeadersSent(response));
 
@@ -77,14 +80,13 @@ export class ProblemDetailsFilter implements ExceptionFilter {
   private log(
     exception: unknown,
     status: number,
-    request: { id: string },
+    request: LoggedRequest,
     headersSent: boolean,
   ): void {
     if (isServerError(status) || headersSent) {
-      this.logger.error({ err: exception, traceId: request.id }, 'Request failed');
+      request.log.error({ err: exception, traceId: request.id }, 'Request failed');
     } else if (exception instanceof BodyRejectedException) {
-      // These requests never reach the pino-http middleware, so nothing else logs them.
-      this.logger.warn({ req: request, status }, 'Request body rejected');
+      request.log.warn({ status }, 'Request body rejected');
     }
   }
 }
