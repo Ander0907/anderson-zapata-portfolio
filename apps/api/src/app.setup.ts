@@ -8,7 +8,12 @@ import type { Env } from './config/env.js';
 
 const JSON_BODY_LIMIT = '16kb';
 
-export const NEST_APP_OPTIONS: NestApplicationOptions = { bufferLogs: true, bodyParser: false };
+export const NEST_APP_OPTIONS: NestApplicationOptions = {
+  bufferLogs: true,
+  bodyParser: false,
+  // Startup errors reach the catch in main.ts instead of Nest's own process.exit.
+  abortOnError: false,
+};
 
 export function configureApp(app: NestExpressApplication, env: Env): void {
   app.useLogger(app.get(Logger));
