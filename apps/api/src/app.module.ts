@@ -11,8 +11,20 @@ import { buildRequestLoggerOptions, REQUEST_LOGGER } from './common/logging/logg
 import type { Env } from './config/env.js';
 import { HealthModule } from './modules/health/health.module.js';
 
+/** Root module: assembles configuration, logging, rate limiting and the feature modules. */
 @Module({})
 export class AppModule {
+  /**
+   * Builds the root module from an already validated environment.
+   *
+   * Registers, for the whole application, the problem details filter, the throttler guard (with its
+   * counters in memory, ADR-008) and the validation pipe, which only checks parameters that declare
+   * a `schema`. It also creates the request logger, which `configureApp` mounts.
+   *
+   * @param env - Result of `parseEnv`, the only configuration source.
+   * @param options - `logDestination` receives the log lines instead of stdout; tests use it.
+   * @returns The dynamic module to hand to Nest.
+   */
   static forRoot(env: Env, options: { logDestination?: DestinationStream } = {}): DynamicModule {
     const loggerOptions = buildRequestLoggerOptions(env, options.logDestination);
     return {
