@@ -26,7 +26,7 @@ Portafolio personal de Anderson Zapata. El sitio público es estático; la API (
    cp .env.example .env
    ```
 
-   En `.env` cambia `POSTGRES_PASSWORD` por una contraseña propia. Si cambias `POSTGRES_PASSWORD` (o `POSTGRES_USER` / `POSTGRES_DB`), actualiza tambi�n `DATABASE_URL` y `DATABASE_URL_UNPOOLED` con los mismos valores. El fichero `.env` no se sube al repositorio.
+   En `.env` cambia `POSTGRES_PASSWORD` por una contraseña propia. Si cambias `POSTGRES_PASSWORD` (o `POSTGRES_USER` / `POSTGRES_DB`), actualiza también `DATABASE_URL` y `DATABASE_URL_UNPOOLED` con los mismos valores. El fichero `.env` no se sube al repositorio.
 
 2. Instala las dependencias:
 
@@ -44,9 +44,61 @@ Portafolio personal de Anderson Zapata. El sitio público es estático; la API (
 
 4. Comprueba que el entorno funciona ejecutando la calidad completa (ver la tabla siguiente).
 
-La API todavía no se puede arrancar: el punto de entrada (`main.ts`) y los scripts `dev` y `start` llegan en la rama `feature/api-foundation`.
-
 > Si cambias un `tsconfig`, borra `node_modules/.vitest-cache` antes de volver a ejecutar las pruebas: la caché de Vitest no se invalida sola con esos cambios (ver [ADR-010](docs/adr/adr-010-esm-and-nodenext.md)).
+
+### Arrancar la API
+
+La API escucha en el puerto `PORT` (8080 por defecto). Antes de arrancarla, crea el `.env` (paso 1) y define `NODE_ENV`.
+
+Modo desarrollo, desde la raíz del repositorio. El script compila `packages/shared` y `apps/api`, y después vigila los cambios y reinicia el servidor:
+
+```bash
+pnpm --filter @portfolio/api dev
+```
+
+Modo compilado: desde la raíz compila todos los paquetes y después arranca la API desde `apps/api`:
+
+```bash
+pnpm build
+cd apps/api
+pnpm start
+```
+
+Rutas disponibles:
+
+| Método y ruta | Qué es |
+|---|---|
+| `GET /health` | Comprobación de salud. No consulta la base de datos ([ADR-016](docs/adr/adr-016-health-without-database-and-monitoring.md)). |
+| `GET /docs` | Swagger UI. Solo existe fuera de `production`. |
+
+> **`NODE_ENV` es obligatoria.** La API no arranca sin ella, así que Swagger nunca se expone por omisión. Valores válidos: `development`, `test` o `production`. En cada servicio desplegado usa `production`.
+
+### Contrato OpenAPI
+
+`apps/api/openapi.json` es el contrato de la API y está versionado en el repositorio. Una prueba falla si el código se desvía de ese fichero. Para regenerarlo:
+
+```bash
+pnpm --filter @portfolio/api openapi:generate
+```
+
+Después haz commit de `apps/api/openapi.json` junto con el cambio.
+
+### Variables de entorno
+
+Las variables están en [`.env.example`](.env.example). Este resumen no sustituye a los comentarios de la plantilla.
+
+| Variable | Para qué |
+|---|---|
+| `POSTGRES_USER`, `POSTGRES_PASSWORD`, `POSTGRES_DB` | Usuario, contraseña y base de datos del PostgreSQL local (`docker compose`). |
+| `POSTGRES_HOST_PORT` | Puerto del host para el contenedor de PostgreSQL (5432 por defecto). |
+| `DATABASE_URL` | Conexión de la aplicación. |
+| `DATABASE_URL_UNPOOLED` | Conexión directa, usada solo por `prisma migrate deploy` ([ADR-019](docs/adr/adr-019-prisma-7-pinned-two-neon-urls.md)). |
+| `NODE_ENV` | Obligatoria: `development`, `test` o `production`. |
+| `PORT` | Puerto en el que escucha la API (8080 por defecto). |
+| `LOG_LEVEL` | Nivel de log: `fatal`, `error`, `warn`, `info`, `debug`, `trace` o `silent`. |
+| `GCP_PROJECT_ID` | Proyecto de Google Cloud para enlazar logs y trazas. Vacío en local. |
+| `CORS_ALLOWED_ORIGINS` | Orígenes exactos separados por comas. Vacío: CORS desactivado. |
+| `RATE_LIMIT_TTL_SECONDS`, `RATE_LIMIT_MAX` | Peticiones permitidas por IP (IPv6: por /64) y por ruta en cada ventana de `RATE_LIMIT_TTL_SECONDS` segundos. |
 
 ### Comandos
 
@@ -60,7 +112,7 @@ Los comandos de la raíz se ejecutan con `pnpm <script>` desde la raíz del repo
 | `pnpm typecheck` | Comprueba los tipos de cada paquete (`tsc --noEmit`). |
 | `pnpm test` | Ejecuta las pruebas de cada paquete con Vitest. |
 | `pnpm test:cov` | Ejecuta las pruebas con informe de cobertura. |
-| `pnpm build` | Compila todos los paquetes en orden topol�gico: primero `packages/shared` y despu�s `apps/api`, cada uno a su `dist/`. |
+| `pnpm build` | Compila todos los paquetes en orden topológico: primero `packages/shared` y después `apps/api`, cada uno a su `dist/`. |
 | `pnpm --filter @portfolio/api test:unit` | Ejecuta solo las pruebas unitarias de la API. |
 | `pnpm --filter @portfolio/api test:int` | Ejecuta las pruebas de integración de la API (usan PostgreSQL). |
 | `pnpm --filter @portfolio/api test:e2e` | Ejecuta las pruebas e2e de la API. |

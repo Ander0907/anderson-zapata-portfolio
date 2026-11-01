@@ -41,6 +41,14 @@
 - Si `nestjs-pino` deja de mantenerse o no soporta la siguiente versión mayor de Nest.
 - Si el logger integrado de Nest llega a cubrir `severity`, correlación y redacción.
 
+## Actualización (2026-11-01)
+
+La decisión se mantiene. Se concretan tres puntos:
+
+- **Gravedad explícita.** La correspondencia con Cloud Logging es un mapa fijo: `trace` → `DEBUG`, `warn` → `WARNING`, `fatal` → `CRITICAL`. Pasar el nivel de pino en mayúsculas no siempre da un valor válido.
+- **Serializadores con lista de permitidos.** Solo se registran `id`, `method`, la ruta sin query string y `statusCode`. Así no se registran cabeceras ni query strings.
+- **Peticiones rechazadas por el parser de cuerpo.** Se registra un único WARNING, sin el cuerpo.
+
 ## Fuentes
 
 - [docs/architecture/backend-research-definition.md](../architecture/backend-research-definition.md) (§2.7, §3.4 D13)

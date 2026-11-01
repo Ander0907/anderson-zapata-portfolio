@@ -41,6 +41,14 @@
 - Si la prueba del `openapi.json` falla o el converter no cubre los esquemas.
 - Si el peso de Zod en la web impide cumplir RNF-01 (evaluar Valibot).
 
+## Actualización (2026-11-01)
+
+La decisión se mantiene. Se actualizan tres puntos:
+
+- **Riesgo resuelto (OpenAPI).** `@nestjs/swagger` 12 usa por defecto el `~standard.jsonSchema` nativo de Zod 4. No hace falta `standardSchemaConverter` ni `zod-openapi`. Una prueba comprueba que el JSON Schema generado incluye `properties`, `required`, `additionalProperties: false`, `maxLength` y `maxItems`.
+- **Prueba con ruta de ejemplo.** Esa prueba usa una ruta de ejemplo (fixture), porque el endpoint de contacto llega en `feature/contact-messages`. Esa rama debe añadir la misma comprobación sobre el cuerpo real del formulario de contacto.
+- **Configuración.** `ConfigModule` recibe el entorno ya validado por `parseEnv` a través de `load`, en lugar de `validationSchema`. Con `validationSchema`, la librería lee `process.env` e ignora el objeto validado. `src/config/env.ts` es el único punto que lee `process.env`.
+
 ## Fuentes
 
 - [docs/architecture/backend-research-definition.md](../architecture/backend-research-definition.md) (§2.1, §3.4)

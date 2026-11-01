@@ -44,6 +44,13 @@
 - Si `ci/deploy-api` no cumple algún criterio (pasar al plan B y actualizar este ADR).
 - Si la asignación de dominio de Cloud Run sale de Preview, o cambian los límites de Workers.
 
+## Actualización (2026-11-01)
+
+La decisión se mantiene. Se concreta el limitador de peticiones:
+
+- El limitador usa `ThrottlerGuard` de `@nestjs/throttler`, sin guard propio. Su `getTracker` toma `req.ip`, normalizado a /64 en IPv6. La API configura `trust proxy = 1`.
+- Si ese cálculo de la IP es correcto detrás de Cloudflare, sigue pendiente de validación en `ci/deploy-api`.
+
 ## Fuentes
 
 - [docs/architecture/backend-research-definition.md](../architecture/backend-research-definition.md) (§2.5, §2.6, §6 G1–G2)
