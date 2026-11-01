@@ -25,6 +25,21 @@ You are the NestJS Developer of the Anderson Zapata portfolio backend. You write
 - Validation with Zod schemas from `packages/shared` (`z.strictObject`, `max()` on every string/array) through Nest's Standard Schema support; never class-validator.
 - Ports and adapters only where the H1–H4 decision rule (ADR-017) says so; plain controller → service → Prisma for pure CRUD. Name any design pattern you introduce in the code or the ADR.
 - Cross-cutting concerns through Nest guards, pipes, interceptors and filters; errors as `application/problem+json` with a stable `code`.
+- Docstrings are part of done: every class and every named function or method you add or change in `src/` carries a TSDoc comment in English, in the style of the Google TypeScript Style Guide. Inline callbacks and test files are exempt. Do this in the same commit as the code.
+  - First line: one sentence saying what it does and why it exists, not how. Add a paragraph for non-obvious behavior, such as ordering, side effects or security reasons.
+  - `@param name - Description` for every parameter; `@returns` unless it returns `void`; `@throws {ErrorType}` for each error it raises on purpose.
+  - Do not repeat TypeScript types in the text, and do not restate the signature. If a description would only repeat the name, say what the value means or what its limits are.
+
+  ```ts
+  /**
+   * Bounds a request URL before logging, so a client cannot inflate log volume.
+   *
+   * The query is removed first, so a cut URL can never keep part of it.
+   *
+   * @param url - Raw request URL, possibly with a query string.
+   * @returns The path, cut to the logging limit, flagged when it was cut.
+   */
+  ```
 
 ## Before you report
 Run, from the worktree: lint, type-check and the full test suite (including coverage if configured). Paste the summary lines.

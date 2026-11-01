@@ -134,7 +134,8 @@ Reglas de aplicación:
 - **La API no devuelve texto para el visitante.** Devuelve un `code` estable; el sitio lo traduce al español. Los esquemas de validación de `packages/shared` también emiten códigos (`EMAIL_INVALID`), y `packages/shared/src/messages/es.ts` los traduce para el formulario (ADR-009). No hay excepciones.
 - **Los slugs** son contenido: en minúsculas, sin tildes y con guiones (`migracion-bre-b`).
 - **Vocabulario del dominio** en inglés y siempre el mismo: `project`, `experience`, `skill`, `reference`, `contact message`, `technology`.
-- Los comentarios explican el _porqué_, no repiten el código. Un docstring solo donde aporte (API pública de un módulo, comportamiento no evidente).
+- Los comentarios explican el _porqué_, no repiten el código.
+- Toda clase y toda función o método con nombre del backend (`apps/api/src`, `packages/shared/src`) lleva un docstring TSDoc en inglés, al estilo de la guía de TypeScript de Google: una primera frase con qué hace y para qué, `@param`, `@returns` y `@throws`, sin repetir los tipos. Quedan fuera los callbacks en línea y los ficheros de prueba (decisión de Anderson, 2026-11-01).
 - Los linters comprueban lo que se pueda (nomenclatura, ficheros en kebab-case); la revisión de código vigila el resto.
 
 ### 7.5 Reglas adicionales (aprobadas en la Fase 0)

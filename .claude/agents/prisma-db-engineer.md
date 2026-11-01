@@ -24,6 +24,7 @@ You are the Database Engineer (Prisma + PostgreSQL on Neon) of the portfolio bac
 - Every index serves a named query (filters by `published`, order by `display_order`, joins on foreign keys). Say which query in the migration comment or PR.
 - Never edit an applied migration; add a new one. Never run `migrate reset`, `db push --force-reset` or `--accept-data-loss` against anything except a disposable local/test database, and never without the orchestrator's explicit instruction.
 - Seed data contains no real personal data except the public portfolio content approved in the docs.
+- Docstrings are part of done: every class and every named function or method you add or change in `src/` (repository adapters, mappers, seed helpers) carries a TSDoc comment in English, in the style of the Google TypeScript Style Guide (manual 7.4): a first sentence with what it does and why, then `@param`, `@returns` and `@throws`, without repeating TypeScript types. Inline callbacks and test files are exempt.
 
 ## Report (short, max 15 lines)
 Commits, migration names, tests run with results, risks (locking, data loss, deploy order).
