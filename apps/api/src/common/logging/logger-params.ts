@@ -7,14 +7,17 @@ import type { Env } from '../../config/env.js';
 
 const TRACE_FIELD = 'logging.googleapis.com/trace';
 
-const REDACTED_PATHS = [
-  'req.headers.cookie',
-  'req.headers.authorization',
-  'res.headers["set-cookie"]',
-  'name',
-  'email',
-  'message',
-];
+const REDACTED_PATHS = ['name', 'email', 'message'];
+
+/** Allowlists: headers and query strings carry secrets and personal data, so none are logged. */
+const REQUEST_SERIALIZERS = {
+  req: ({ id, method, url }: { id: unknown; method: string; url: string }) => ({
+    id,
+    method,
+    url: url.split('?')[0],
+  }),
+  res: ({ statusCode }: { statusCode: number | null }) => ({ statusCode }),
+};
 
 /** Pino levels whose uppercase name is not a Cloud Logging severity. */
 const SEVERITY_OVERRIDES: Partial<Record<string, string>> = {
@@ -35,6 +38,7 @@ export function buildLoggerParams(env: Env, destination?: DestinationStream): Pa
       level: (label) => ({ severity: SEVERITY_OVERRIDES[label] ?? label.toUpperCase() }),
     },
     redact: REDACTED_PATHS,
+    serializers: REQUEST_SERIALIZERS,
     customProps: (req) => traceFieldOf(req, env.GCP_PROJECT_ID),
   };
   return { pinoHttp: destination ? [options, destination] : options };
