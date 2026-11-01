@@ -9,3 +9,7 @@ overrides:
 
 # An unapproved dependency build script fails the install instead of being skipped.
 strictDepBuilds: true
+
+# Install-time telemetry pulled in by swagger-ui-dist; nothing in the project needs it to run.
+ignoredBuiltDependencies:
+  - '@scarf/scarf'

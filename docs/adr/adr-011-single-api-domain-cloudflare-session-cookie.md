@@ -4,7 +4,7 @@
 
 ## Contexto
 
-- Si el panel vive en el dominio `.dev` y la API en `*.run.app`, la cookie de sesión es de terceros (cross-site): muchos navegadores la bloquean y obligaría a `SameSite=None` y a debilitar la protección CSRF (riesgo G1, que bloqueaba `feat/admin-auth`).
+- Si el panel vive en el dominio `.dev` y la API en `*.run.app`, la cookie de sesión es de terceros (cross-site): muchos navegadores la bloquean y obligaría a `SameSite=None` y a debilitar la protección CSRF (riesgo G1, que bloqueaba `feature/admin-auth`).
 - La asignación de dominio de Cloud Run está en **Preview y «no recomendada para producción»**. Un balanceador de carga global tiene coste (contra RNF-11).
 - Para limitar peticiones, la API necesita la IP real del cliente; con un proxy delante hay un salto más y la cabecera puede falsificarse.
 
@@ -16,7 +16,7 @@
 - La cookie de sesión usa `SameSite=Strict` y el prefijo `__Host-` (detalles en ADR-012).
 - **IP real** ([§2.5](../architecture/backend-research-definition.md)): `trust proxy = 1` y `req.ip`, nunca `req.ips[0]`. Propuesta a validar: el reenvío de Cloudflare añade la IP real y una clave secreta compartida, y la API **solo confía en esa IP si la clave es correcta**. Prueba manual documentada: `curl -H 'X-Forwarded-For: 1.2.3.4'` no debe cambiar el contador.
 
-**Validación pospuesta (decisión de Anderson del 2026-10-24):** la validación del reenvío por Cloudflare se hace en la rama **`ci/deploy-api`**, que se ejecuta **después de las pruebas locales completas** ([manual §12](../process/06-manual-de-desarrollo.md)). Mientras tanto, `feat/admin-auth` se desarrolla y prueba en local con el modelo de origen único.
+**Validación pospuesta (decisión de Anderson del 2026-10-24):** la validación del reenvío por Cloudflare se hace en la rama **`ci/deploy-api`**, que se ejecuta **después de las pruebas locales completas** ([manual §12](../process/06-manual-de-desarrollo.md)). Mientras tanto, `feature/admin-auth` se desarrolla y prueba en local con el modelo de origen único.
 
 **Criterios para dar por buena la opción** (en `ci/deploy-api`): una petición de la web llega a la API; la cookie se guarda y se envía; la IP real llega bien; el coste sigue en cero; y las peticiones por el reenvío caben en el límite gratuito de Cloudflare (100 000 al día para Workers).
 
@@ -43,6 +43,13 @@
 
 - Si `ci/deploy-api` no cumple algún criterio (pasar al plan B y actualizar este ADR).
 - Si la asignación de dominio de Cloud Run sale de Preview, o cambian los límites de Workers.
+
+## Actualización (2026-11-01)
+
+La decisión se mantiene. Se concreta el limitador de peticiones:
+
+- El limitador usa `ThrottlerGuard` de `@nestjs/throttler`, sin guard propio. Su `getTracker` toma `req.ip`, normalizado a /64 en IPv6. La API configura `trust proxy = 1`.
+- Si ese cálculo de la IP es correcto detrás de Cloudflare, sigue pendiente de validación en `ci/deploy-api`.
 
 ## Fuentes
 

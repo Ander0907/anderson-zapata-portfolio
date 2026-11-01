@@ -1,16 +1,13 @@
-import type { INestApplication } from '@nestjs/common';
-import { Test } from '@nestjs/testing';
+import type { NestExpressApplication } from '@nestjs/platform-express';
 import request from 'supertest';
 import { afterAll, beforeAll, describe, it } from 'vitest';
-import { AppModule } from '../../src/app.module.js';
+import { createTestApp } from '../support/create-test-app.js';
 
 describe('Application bootstrap (manual section 12, row 0)', () => {
-  let app: INestApplication<Parameters<typeof request>[0]> | undefined;
+  let app: NestExpressApplication | undefined;
 
   beforeAll(async () => {
-    const moduleRef = await Test.createTestingModule({ imports: [AppModule] }).compile();
-    app = moduleRef.createNestApplication();
-    await app.init();
+    app = await createTestApp();
   });
 
   afterAll(async () => {

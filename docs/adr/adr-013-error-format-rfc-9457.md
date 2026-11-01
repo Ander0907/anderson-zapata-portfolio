@@ -40,6 +40,12 @@ Implementación prevista ([backend-research §1.5](../architecture/backend-resea
 
 - Si se publica una nueva versión de la RFC o un cliente necesita `type` documentados (`https://<dominio>/problemas/<code>`).
 
+## Actualización (2026-11-01)
+
+La decisión se mantiene. Pendiente de implementar:
+
+- `DomainError` y las traducciones de Prisma (`P2002` → 409, `P2025` → 404) todavía no existen. Llegan con su primer consumidor: `feature/db-schema` para Prisma.
+
 ## Fuentes
 
 - [docs/architecture/backend-research-definition.md](../architecture/backend-research-definition.md) (§3.6, §6 G11)

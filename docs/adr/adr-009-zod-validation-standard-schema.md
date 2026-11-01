@@ -18,7 +18,7 @@
 - La configuración del entorno también se valida con Zod al arrancar (`ConfigModule` con `validationSchema`).
 - No se usa `class-validator`.
 
-**Riesgo y control:** la generación de OpenAPI con Standard Schema (`@nestjs/swagger` 12 con `standardSchemaConverter`) solo se vio en un espejo de las notas de versión. Una prueba en `feat/api-foundation` comprueba que `openapi.json` incluye el cuerpo del formulario de contacto; si falla, se reevalúa.
+**Riesgo y control:** la generación de OpenAPI con Standard Schema (`@nestjs/swagger` 12 con `standardSchemaConverter`) solo se vio en un espejo de las notas de versión. Una prueba en `feature/api-foundation` comprueba que `openapi.json` incluye el cuerpo del formulario de contacto; si falla, se reevalúa.
 
 ## Alternativas consideradas
 
@@ -40,6 +40,14 @@
 
 - Si la prueba del `openapi.json` falla o el converter no cubre los esquemas.
 - Si el peso de Zod en la web impide cumplir RNF-01 (evaluar Valibot).
+
+## Actualización (2026-11-01)
+
+La decisión se mantiene. Se actualizan tres puntos:
+
+- **Riesgo resuelto (OpenAPI).** `@nestjs/swagger` 12 usa por defecto el `~standard.jsonSchema` nativo de Zod 4. No hace falta `standardSchemaConverter` ni `zod-openapi`. Una prueba comprueba que el JSON Schema generado incluye `properties`, `required`, `additionalProperties: false`, `maxLength` y `maxItems`.
+- **Prueba con ruta de ejemplo.** Esa prueba usa una ruta de ejemplo (fixture), porque el endpoint de contacto llega en `feature/contact-messages`. Esa rama debe añadir la misma comprobación sobre el cuerpo real del formulario de contacto.
+- **Configuración.** `ConfigModule` recibe el entorno ya validado por `parseEnv` a través de `load`, en lugar de `validationSchema`. Con `validationSchema`, la librería lee `process.env` e ignora el objeto validado. `src/config/env.ts` es el único punto que lee `process.env`.
 
 ## Fuentes
 

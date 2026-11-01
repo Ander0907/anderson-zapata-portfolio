@@ -14,7 +14,7 @@
 
 El modelo relacional elegido tiene **15 tablas** tras la Fase 0: `profile`, `profile_highlight`, `project`, `project_decision`, `project_flow_step`, `technology`, `project_technology`, `experience`, `experience_item`, `experience_technology`, `skill_group`, `skill`, `reference`, `contact_message` y `publish_event`. Las reglas se aplican en la base con `CHECK`, `ON DELETE` (cascada en hijas y tablas puente, `RESTRICT` al borrar una tecnología en uso) e índices en toda clave foránea. Los UUID los genera la base con `gen_random_uuid()`.
 
-Diagramas: `../architecture/img/modelo-relacional-elegido.png` (elegido; aún muestra la versión de 12 tablas hasta la rama `feat/db-schema`) y la alternativa descartada:
+Diagramas: `../architecture/img/modelo-relacional-elegido.png` (elegido; aún muestra la versión de 12 tablas hasta la rama `feature/db-schema`) y la alternativa descartada:
 
 ![Modelo de documentos descartado](../architecture/img/modelo-documentos-descartado.png)
 
