@@ -33,24 +33,72 @@ describe('Logged URL is bounded (A3, ADR-014)', () => {
     await app.close();
   });
 
-  it('cuts a long URL to at most 2048 characters and flags it as truncated', async () => {
+  it('cuts a long URL to exactly 2048 characters and flags it as truncated', async () => {
     await request(app.getHttpServer())
       .get(`/${'a'.repeat(5000)}`)
       .set('X-Request-Id', 'long-url-1');
 
     const req = reqOf(entryOf('long-url-1'));
-    expect(req.url).toBeDefined();
-    expect(req.url?.length).toBeLessThanOrEqual(MAX_URL_LENGTH);
+    expect(req.url).toBe(`/${'a'.repeat(MAX_URL_LENGTH - 1)}`);
     expect(req.urlTruncated).toBe(true);
   });
 
-  it('strips the query before cutting, so a truncated URL never carries it', async () => {
+  it('does not flag a path of exactly 2048 characters', async () => {
+    const path = `/${'a'.repeat(MAX_URL_LENGTH - 1)}`;
+    await request(app.getHttpServer()).get(path).set('X-Request-Id', 'edge-2048');
+
+    const req = reqOf(entryOf('edge-2048'));
+    expect(req.url).toBe(path);
+    expect('urlTruncated' in req).toBe(false);
+  });
+
+  it('flags and cuts a path of 2049 characters', async () => {
     await request(app.getHttpServer())
-      .get(`/${'b'.repeat(5000)}?token=${SECRET}`)
+      .get(`/${'a'.repeat(MAX_URL_LENGTH)}`)
+      .set('X-Request-Id', 'edge-2049');
+
+    const req = reqOf(entryOf('edge-2049'));
+    expect(req.url).toBe(`/${'a'.repeat(MAX_URL_LENGTH - 1)}`);
+    expect(req.urlTruncated).toBe(true);
+  });
+
+  it('strips the query first, so a path under the limit is not flagged because of its query', async () => {
+    const path = `/${'c'.repeat(2039)}`;
+    await request(app.getHttpServer())
+      .get(`${path}?token=${SECRET}`)
       .set('X-Request-Id', 'long-url-2');
 
-    expect(reqOf(entryOf('long-url-2')).urlTruncated).toBe(true);
+    const req = reqOf(entryOf('long-url-2'));
+    expect(path.length + `?token=${SECRET}`.length).toBeGreaterThan(MAX_URL_LENGTH);
+    expect(req.url).toBe(path);
+    expect('urlTruncated' in req).toBe(false);
+    expect(sharedLogs.raw()).not.toContain('?token');
     expect(sharedLogs.raw()).not.toContain(SECRET);
+  });
+
+  it('keeps a short path whole when only the query is long', async () => {
+    await request(app.getHttpServer())
+      .get(`/health?token=${'q'.repeat(5000)}`)
+      .set('X-Request-Id', 'long-query-1');
+
+    const req = reqOf(entryOf('long-query-1'));
+    expect(req.url).toBe('/health');
+    expect('urlTruncated' in req).toBe(false);
+  });
+
+  it('flags the truncation in the WARNING of a body-parser rejection on a long URL', async () => {
+    const response = await request(app.getHttpServer())
+      .post(`/${'d'.repeat(5000)}`)
+      .set('Content-Type', 'application/json')
+      .set('X-Request-Id', 'long-url-parser')
+      .send('{"broken": ');
+
+    expect(response.status).toBe(400);
+    const warning = sharedLogs
+      .entries()
+      .find((entry) => entry.severity === 'WARNING' && reqOf(entry).id === 'long-url-parser');
+    expect(reqOf(warning).url).toBe(`/${'d'.repeat(MAX_URL_LENGTH - 1)}`);
+    expect(reqOf(warning).urlTruncated).toBe(true);
   });
 
   it('keeps a short URL whole and leaves out the truncation flag', async () => {
