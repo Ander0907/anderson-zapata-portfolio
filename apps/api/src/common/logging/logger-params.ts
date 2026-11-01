@@ -23,9 +23,16 @@ const TRACE_FIELD = 'logging.googleapis.com/trace';
  */
 const REDACTED_PATHS = ['name', 'email', 'message'];
 
+/** Longest logged URL; it limits the log volume that a client can cause (ADR-014). */
 const MAX_LOGGED_URL_LENGTH = 2048;
 
-/** Drops the query first, so that a cut URL can never keep part of it. */
+/**
+ * Drops the query first, so that a cut URL can never keep part of it.
+ *
+ * @param url - Request URL, which may have a query string.
+ * @returns The URL without its query string, cut to `MAX_LOGGED_URL_LENGTH` with `urlTruncated` set
+ *   when longer.
+ */
 function loggedUrl(url: string): { url: string; urlTruncated?: true } {
   const [path = ''] = url.split('?');
   return path.length > MAX_LOGGED_URL_LENGTH
@@ -39,7 +46,8 @@ const REQUEST_SERIALIZERS = {
    * Reduces a request to the fields that are safe to log.
    *
    * @param req - Request as pino-http presents it to serializers; its URL may have a query string.
-   * @returns The id, the method and the URL without its query string.
+   * @returns The id, the method and the URL without its query string, cut to
+   *   `MAX_LOGGED_URL_LENGTH` with `urlTruncated` set when longer.
    */
   req: ({ id, method, url }: { id: unknown; method: string; url: string }) => ({
     id,
