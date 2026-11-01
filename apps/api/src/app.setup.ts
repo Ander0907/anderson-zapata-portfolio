@@ -1,10 +1,12 @@
 import { type NestApplicationOptions, VersioningType } from '@nestjs/common';
 import type { NestExpressApplication } from '@nestjs/platform-express';
+import { SwaggerModule } from '@nestjs/swagger';
 import helmet from 'helmet';
 import { Logger } from 'nestjs-pino';
 import { translateBodyParserError } from './common/http/body-parser-errors.js';
 import { assignRequestId } from './common/http/request-id.js';
 import type { Env } from './config/env.js';
+import { buildOpenApiDocument } from './openapi/openapi.js';
 
 const JSON_BODY_LIMIT = '16kb';
 
@@ -31,4 +33,7 @@ export function configureApp(app: NestExpressApplication, env: Env): void {
   }
   app.useBodyParser('json', { limit: JSON_BODY_LIMIT });
   app.use(translateBodyParserError);
+  if (env.NODE_ENV !== 'production') {
+    SwaggerModule.setup('docs', app, () => buildOpenApiDocument(app));
+  }
 }

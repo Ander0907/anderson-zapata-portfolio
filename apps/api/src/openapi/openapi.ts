@@ -1,8 +1,11 @@
 import type { INestApplication } from '@nestjs/common';
-import type { OpenAPIObject } from '@nestjs/swagger';
+import { DocumentBuilder, type OpenAPIObject, SwaggerModule } from '@nestjs/swagger';
 
-// Inert seam: the real document builder arrives with the GREEN step.
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-export function buildOpenApiDocument(_app: INestApplication): OpenAPIObject {
-  return { openapi: '', info: { title: '', version: '' }, paths: {} };
+/**
+ * No `standardSchemaConverter`: Swagger falls back to `~standard.jsonSchema`, which Zod 4 implements
+ * natively, so `@Body({ schema })` documents the real schema.
+ */
+export function buildOpenApiDocument(app: INestApplication): OpenAPIObject {
+  const config = new DocumentBuilder().setTitle('Portfolio API').setVersion('1').build();
+  return SwaggerModule.createDocument(app, config);
 }
