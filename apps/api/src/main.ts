@@ -1,16 +1,9 @@
-import { NestFactory } from '@nestjs/core';
-import type { NestExpressApplication } from '@nestjs/platform-express';
-import { AppModule } from './app.module.js';
-import { configureApp, NEST_APP_OPTIONS } from './app.setup.js';
+import { createApp } from './app.setup.js';
 import { loadEnv } from './config/env.js';
 
 async function bootstrap(): Promise<void> {
   const env = loadEnv();
-  const app = await NestFactory.create<NestExpressApplication>(
-    AppModule.forRoot(env),
-    NEST_APP_OPTIONS,
-  );
-  configureApp(app, env);
+  const app = await createApp(env);
   await app.listen(env.PORT, '0.0.0.0');
 }
 
