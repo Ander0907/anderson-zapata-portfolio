@@ -38,8 +38,8 @@ function serveDocsOutsideProduction(app: NestExpressApplication, env: Env): void
 }
 
 /**
- * Middleware runs in registration order. The request logger comes first so that every request has
- * an id and a log entry, including those rejected by the body parser or the router.
+ * Middleware runs in registration order. The request logger comes first so that whatever reaches
+ * Express, even if later rejected, gets an id and a log entry; Node's own 400/431 never get here.
  */
 export function configureApp(app: NestExpressApplication, env: Env): void {
   app.useLogger(app.get(Logger));
