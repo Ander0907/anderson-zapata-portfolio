@@ -28,10 +28,16 @@ describe('Logging of rejected requests (A3, B3, B4, ADR-013, ADR-014)', () => {
 
   describe('query strings never reach the log', () => {
     it('omits the query of a 400 caused by a malformed URI', async () => {
-      const response = await request(await start()).get(`/v1/fixtures/p/%E0%A4%A?token=${SECRET}`);
+      const response = await request(await start())
+        .get(`/v1/fixtures/p/%E0%A4%A?token=${SECRET}`)
+        .set('X-Request-Id', 'id-malformed');
 
       expect(response.status).toBe(400);
-      expect(sharedLogs.entries().length).toBeGreaterThan(0);
+      const logged = sharedLogs.entries().filter((e) => requestIdOf(e) === 'id-malformed');
+      expect(logged.length).toBeGreaterThan(0);
+      expect(
+        logged.every((e) => (e.req as { url?: string }).url === '/v1/fixtures/p/%E0%A4%A'),
+      ).toBe(true);
       expect(sharedLogs.raw()).not.toContain(SECRET);
     });
 
@@ -39,10 +45,15 @@ describe('Logging of rejected requests (A3, B3, B4, ADR-013, ADR-014)', () => {
       const response = await request(await start())
         .post(`/v1/fixtures/raw?token=${SECRET}`)
         .set('Content-Type', 'application/json')
+        .set('X-Request-Id', 'id-parser')
         .send('{"broken": ');
 
       expect(response.status).toBe(400);
-      expect(sharedLogs.entries().some((e) => e.severity === 'WARNING')).toBe(true);
+      const logged = sharedLogs.entries().filter((e) => requestIdOf(e) === 'id-parser');
+      expect(logged.some((e) => e.severity === 'WARNING')).toBe(true);
+      expect(logged.every((e) => (e.req as { url?: string }).url === '/v1/fixtures/raw')).toBe(
+        true,
+      );
       expect(sharedLogs.raw()).not.toContain(SECRET);
     });
   });

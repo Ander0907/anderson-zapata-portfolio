@@ -33,6 +33,7 @@ describe('Preflight requests are logged and carry a request id (B2, A3, ADR-014)
       .set('Origin', origin)
       .set('Access-Control-Request-Method', 'POST');
 
+    expect(response.status).toBe(204);
     const id = response.headers['x-request-id'];
     expect(typeof id).toBe('string');
     expect(sharedLogs.entries().some((entry) => requestIdOf(entry) === id)).toBe(true);
