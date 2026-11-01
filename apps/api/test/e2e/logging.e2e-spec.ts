@@ -3,11 +3,10 @@ import request from 'supertest';
 import { afterEach, describe, expect, it } from 'vitest';
 import { createTestApp } from '../support/create-test-app.js';
 import { FixtureModule } from '../support/fixtures.module.js';
-import { type LogEntry, sharedLogs } from '../support/log-collector.js';
+import { requestIdOf, sharedLogs } from '../support/log-collector.js';
 
 const TRACE_ID = '0123456789abcdef0123456789abcdef';
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/;
-const requestIdOf = (entry: LogEntry): unknown => (entry.req as { id?: unknown } | undefined)?.id;
 const TRACE_FIELD = 'logging.googleapis.com/trace';
 
 describe('Structured logging and request id (A3, ADR-014, D13)', () => {

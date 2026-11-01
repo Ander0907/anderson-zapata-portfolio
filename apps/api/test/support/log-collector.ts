@@ -34,9 +34,13 @@ export function createLogCollector(): LogCollector {
 }
 
 /**
- * Process-wide collector. nestjs-pino keeps one pino-http instance per module registry, so the
- * first app built in a spec file fixes the log destination for every later app in that file.
- * Every test therefore shares this destination and clears it in beforeEach. Vitest isolates
- * modules per spec file, so each file gets its own logger configuration.
+ * Process-wide collector. The request logger and `customProps` are built on each forRoot, but
+ * nestjs-pino keeps one root logger per module registry, so the first app built in a spec file
+ * fixes where out-of-request logs go for every later app in that file. Every test therefore shares
+ * this destination and clears it in beforeEach. Vitest isolates modules per spec file.
  */
 export const sharedLogs: LogCollector = createLogCollector();
+
+/** Request id the logger attached to an entry, if any. */
+export const requestIdOf = (entry: LogEntry): unknown =>
+  (entry.req as { id?: unknown } | undefined)?.id;

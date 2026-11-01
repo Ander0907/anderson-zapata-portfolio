@@ -8,8 +8,8 @@ import { sharedLogs } from '../support/log-collector.js';
 const TRACE_ID = '0123456789abcdef0123456789abcdef';
 const TRACE_FIELD = 'logging.googleapis.com/trace';
 
-// Separate file from logging.e2e-spec.ts: nestjs-pino fixes its configuration (here
-// GCP_PROJECT_ID) for the whole module registry, which Vitest isolates per spec file.
+// Separate file from logging.e2e-spec.ts for its own env: `customProps` (here GCP_PROJECT_ID) is
+// built on each forRoot. Only nestjs-pino's root logger stays global to the module registry.
 describe('Cloud Logging trace correlation with GCP_PROJECT_ID set (A3, ADR-014, D13)', () => {
   let app: NestExpressApplication;
 
