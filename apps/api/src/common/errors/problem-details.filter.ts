@@ -58,20 +58,33 @@ export class ProblemDetailsFilter implements ExceptionFilter {
 
   catch(exception: unknown, host: ArgumentsHost): void {
     const http = host.switchToHttp();
+    const { httpAdapter } = this.adapterHost;
     const status = statusOf(exception);
     const request = http.getRequest<{ id: string }>();
-    const traceId = request.id;
+    const response: unknown = http.getResponse();
+    const headersSent = Boolean(httpAdapter.isHeadersSent(response));
 
-    if (isServerError(status)) {
-      this.logger.error({ err: exception, traceId }, 'Request failed');
+    this.log(exception, status, request, headersSent);
+
+    if (headersSent) {
+      httpAdapter.end(response);
+      return;
+    }
+    httpAdapter.setHeader(response, 'Content-Type', 'application/problem+json');
+    httpAdapter.reply(response, problemOf(exception, status, request.id), status);
+  }
+
+  private log(
+    exception: unknown,
+    status: number,
+    request: { id: string },
+    headersSent: boolean,
+  ): void {
+    if (isServerError(status) || headersSent) {
+      this.logger.error({ err: exception, traceId: request.id }, 'Request failed');
     } else if (exception instanceof BodyRejectedException) {
       // These requests never reach the pino-http middleware, so nothing else logs them.
       this.logger.warn({ req: request, status }, 'Request body rejected');
     }
-
-    const { httpAdapter } = this.adapterHost;
-    const response: unknown = http.getResponse();
-    httpAdapter.setHeader(response, 'Content-Type', 'application/problem+json');
-    httpAdapter.reply(response, problemOf(exception, status, traceId), status);
   }
 }
