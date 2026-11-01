@@ -2,9 +2,11 @@ import { type NestApplicationOptions, VersioningType } from '@nestjs/common';
 import type { NestExpressApplication } from '@nestjs/platform-express';
 import helmet from 'helmet';
 import { Logger } from 'nestjs-pino';
-import { rejectMalformedJson } from './common/http/malformed-json.js';
+import { translateBodyParserError } from './common/http/body-parser-errors.js';
 import { assignRequestId } from './common/http/request-id.js';
 import type { Env } from './config/env.js';
+
+const JSON_BODY_LIMIT = '16kb';
 
 export const NEST_APP_OPTIONS: NestApplicationOptions = { bufferLogs: true, bodyParser: false };
 
@@ -21,6 +23,6 @@ export function configureApp(app: NestExpressApplication, env: Env): void {
       methods: ['GET', 'HEAD', 'POST'],
     });
   }
-  app.useBodyParser('json');
-  app.use(rejectMalformedJson);
+  app.useBodyParser('json', { limit: JSON_BODY_LIMIT });
+  app.use(translateBodyParserError);
 }
