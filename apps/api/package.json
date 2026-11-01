@@ -8,7 +8,7 @@
     "start": "node --env-file-if-exists=../../.env dist/main.js",
     "dev": "pnpm --filter @portfolio/shared build && tsc -p tsconfig.build.json && pnpm run \"/^dev:/\"",
     "dev:compile": "tsc -p tsconfig.build.json --watch --preserveWatchOutput",
-    "dev:serve": "node --watch --env-file-if-exists=../../.env dist/main.js",
+    "dev:serve": "node --watch --env-file=../../.env.example --env-file-if-exists=../../.env dist/main.js",
     "openapi:generate": "pnpm --filter @portfolio/shared build && tsc -p tsconfig.build.json && node dist/openapi/generate.js",
     "typecheck": "tsc -p tsconfig.json --noEmit",
     "test": "vitest run",
