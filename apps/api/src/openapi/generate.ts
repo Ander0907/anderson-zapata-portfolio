@@ -3,9 +3,14 @@ import { createApp } from '../app.setup.js';
 import { parseEnv } from '../config/env.js';
 import { buildOpenApiDocument } from './openapi.js';
 
+/** `apps/api/openapi.json`, the committed contract (rule D10). */
 const OUTPUT = new URL('../../openapi.json', import.meta.url);
 
-/** Never listens; a fixed env keeps the output deterministic and free of secrets. */
+/**
+ * Regenerates the committed OpenAPI contract from the real application.
+ *
+ * Never listens; a fixed env keeps the output deterministic and free of secrets.
+ */
 async function generate(): Promise<void> {
   const app = await createApp(parseEnv({ NODE_ENV: 'test', LOG_LEVEL: 'silent' }));
   await app.init();
